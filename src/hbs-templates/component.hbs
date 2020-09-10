@@ -1,0 +1,18 @@
+import React, { ReactNode } from 'react'
+
+{{#if (isTypescript extension)}}
+interface {{ name }}Props {
+    children: ReactNode
+    {{#each props }}
+    {{ this }}: any
+    {{/each}}
+}
+{{/if}}
+
+const {{ name }}{{#if (isTypescript extension)}}: React.FC<{{ name }}Props>{{/if}} = ({ children, {{#each props }}{{ this }},{{/each}} }) => {
+    return (
+        <div>{children}</div>
+    )
+}
+
+export default {{ name }}

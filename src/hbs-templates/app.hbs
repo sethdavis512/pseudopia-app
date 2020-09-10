@@ -1,0 +1,11 @@
+import React from 'react'
+
+{{#each imports }}
+import {{ name }} from './{{ componentDirName }}/{{ name }}'
+{{/each}}
+
+const {{ baseComponentName }}{{#if (isTypescript extension)}}: React.FC{{/if}} = () => {
+    return ({{ render }})
+}
+
+export default {{ baseComponentName}}
