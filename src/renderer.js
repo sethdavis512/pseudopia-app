@@ -71,21 +71,14 @@ const App = () => {
 
     return (
         <div style={{ padding: '1rem' }}>
-            <img
-                src={logo}
-                style={{ padding: '1.5rem 0' }}
-                alt="Pseudopia Logo"
-            />
-            <div className="columns">
-                <div className="column is-8">
-                    <FormField label="Pseudo Code">
-                        <CodeEditor
-                            id="pseudoCode"
-                            handleChange={handleTextChange}
-                            value={pseudo}
-                        />
-                    </FormField>
-                </div>
+            <div className="logo-container">
+                <img
+                    src={logo}
+                    style={{ padding: '1.5rem 0' }}
+                    alt="Pseudopia Logo"
+                />
+            </div>
+            <div className="columns reverse-columns">
                 <div className="column is-4">
                     <form onSubmit={handleSubmit}>
                         <FormField label="Base Component Name">
@@ -124,7 +117,7 @@ const App = () => {
                                 />
                             </div>
                         </FormField>
-                        <FormField label="Build Directory">
+                        <FormField label="Build Path">
                             {buildPath && (
                                 <FormField>
                                     <CodeBlock code={buildPath} />
@@ -132,11 +125,19 @@ const App = () => {
                             )}
                             <Button
                                 fullwidth
-                                className="is-primary is-outlined"
-                                text="Set Build Directory"
-                                handleClick={createHandleDialogOpen(
-                                    setBuildPath
-                                )}
+                                className={`${
+                                    buildPath ? 'is-danger' : 'is-primary'
+                                } is-outlined`}
+                                text={`${
+                                    buildPath ? 'Clear' : 'Set'
+                                } Build Path`}
+                                handleClick={
+                                    buildPath
+                                        ? clearBuildPath
+                                        : createHandleDialogOpen(
+                                              setBuildPath
+                                          )
+                                }
                             />
                         </FormField>
                         <FormField label="Custom Templates (Optional)">
@@ -155,10 +156,8 @@ const App = () => {
                                                 : 'is-primary'
                                         } is-outlined`}
                                         text={`${
-                                            appTemplatePath
-                                                ? 'Clear'
-                                                : 'Set'
-                                        } App Template Path`}
+                                            appTemplatePath ? 'Clear' : 'Set'
+                                        } Base Component Path`}
                                         handleClick={
                                             appTemplatePath
                                                 ? clearAppTemplatePath
@@ -188,7 +187,7 @@ const App = () => {
                                             componentTemplatePath
                                                 ? 'Clear'
                                                 : 'Set'
-                                        } Component Template Path`}
+                                        } Component Path`}
                                         handleClick={
                                             componentTemplatePath
                                                 ? clearComponentTemplatePath
@@ -218,7 +217,7 @@ const App = () => {
                                             unitTestTemplatePath
                                                 ? 'Clear'
                                                 : 'Set'
-                                        } Unit Test Template Path`}
+                                        } Unit Test Path`}
                                         handleClick={
                                             unitTestTemplatePath
                                                 ? clearUnitTestTemplatePath
@@ -241,6 +240,15 @@ const App = () => {
                             />
                         </FormField>
                     </form>
+                </div>
+                <div className="column is-8">
+                    <FormField label="Pseudo Code">
+                        <CodeEditor
+                            id="pseudoCode"
+                            handleChange={handleTextChange}
+                            value={pseudo}
+                        />
+                    </FormField>
                 </div>
             </div>
         </div>

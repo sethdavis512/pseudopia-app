@@ -2,10 +2,7 @@ const path = require('path')
 const {
     app,
     BrowserWindow,
-    Tray,
     dialog,
-    Menu,
-    MenuItem,
     ipcMain
 } = require('electron')
 const {
@@ -18,6 +15,9 @@ const {
 } = require('./utils/utilFunctions')
 const Handlebars = require('handlebars')
 
+const getHBSTemplatePath = fileName =>
+    require(`${__dirname}/src/hbs-templates/${fileName}.hbs`)
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
     // eslint-disable-line global-require
@@ -29,17 +29,14 @@ let mainWindow = null
 
 const createWindow = () => {
     mainWindow = mainWindow = new BrowserWindow({
-        width: 400,
-        height: 600,
-        show: false,
-        resizable: false,
+        width: 1200,
+        height: 800,
         fullscreenable: false,
         webPreferences: {
             nodeIntegration: true
-        }
+        },
+        icon: path.resolve(`src/images/pseudopia-app-icon-256.ico`)
     })
-
-    Menu.setApplicationMenu(applicationMenu)
 
     // and load the index.html of the app.
     mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
@@ -47,67 +44,13 @@ const createWindow = () => {
     // Open the DevTools.
     mainWindow.webContents.openDevTools()
 
-    mainWindow.on('blur', () => {
-        if (!mainWindow.webContents.isDevToolsOpened()) {
-            mainWindow.hide()
-        }
-    })
-
     mainWindow.once('ready-to-show', () => {
         mainWindow.show()
     })
 
     mainWindow.on('closed', () => {
         mainWindow = null
-        tray = null
     })
-}
-
-// Tray
-let tray = null
-
-const createTray = () => {
-    tray = new Tray(path.resolve('src/images/pseudopia-icon.png'))
-    tray.on('right-click', toggleWindow)
-    tray.on('double-click', toggleWindow)
-    tray.on('click', function (event) {
-        toggleWindow()
-
-        // Show devtools when command clicked
-        if (mainWindow.isVisible() && process.defaultApp && event.metaKey) {
-            mainWindow.openDevTools({ mode: 'detach' })
-        }
-    })
-}
-
-const toggleWindow = () => {
-    if (mainWindow.isVisible()) {
-        mainWindow.hide()
-    } else {
-        showWindow()
-    }
-}
-
-const showWindow = () => {
-    const position = getWindowPosition()
-    mainWindow.setPosition(position.x, position.y, false)
-    mainWindow.show()
-    mainWindow.focus()
-}
-
-const getWindowPosition = () => {
-    const windowBounds = mainWindow.getBounds()
-    const trayBounds = tray.getBounds()
-
-    // Center window horizontally below the tray icon
-    const x = Math.round(
-        trayBounds.x + trayBounds.width / 2 - windowBounds.width / 2
-    )
-
-    // Position window 4 pixels vertically below the tray icon
-    const y = Math.round(trayBounds.y + trayBounds.height + 4)
-
-    return { x: x, y: y }
 }
 
 // This method will be called when Electron has finished
@@ -115,11 +58,7 @@ const getWindowPosition = () => {
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
     createWindow()
-    createTray()
 })
-
-// Don't show in dock
-app.dock.hide()
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -128,10 +67,6 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit()
     }
-})
-
-ipcMain.on('show-window', () => {
-    showWindow()
 })
 
 app.on('activate', () => {
@@ -159,8 +94,6 @@ ipcMain.handle('open-file', async (event, isFile) => {
     return response.filePaths[0]
 })
 
-const getHBSTemplatePath = (fileName) => path.resolve(`src/hbs-templates/${fileName}.hbs`)
-
 ipcMain.on('write-files', (event, config) => {
     const AST = getASTData(config.pseudo)
     const FileConstants = getConstants(config)
@@ -168,15 +101,16 @@ ipcMain.on('write-files', (event, config) => {
     const components = handleAST(AST.body)
 
     // Write base component ie App
-    const appTemplateTarget = FileConstants.APP_TEMPLATE_PATH || getHBSTemplatePath('app');
+    const appTemplateTarget =
+        FileConstants.APP_TEMPLATE_PATH || getHBSTemplatePath('app')
     const appTemplateString = readFile(appTemplateTarget)
     const renderContent = new Handlebars.SafeString(config.pseudo)
     const appContent = handleHandleBarCompileReturnContent(appTemplateString, {
         render: renderContent,
-        baseComponentName: FileConstants.BASE_COMPONENT_NAME,
+        name: FileConstants.BASE_COMPONENT_NAME,
         extension: FileConstants.EXTENSION,
         imports: components.map(comp => ({
-            name: comp.name,
+            childName: comp.name,
             componentDirName: FileConstants.SUBFOLDER_NAME
         }))
     })
@@ -189,10 +123,12 @@ ipcMain.on('write-files', (event, config) => {
     })
 
     // Write components
-    const componentTemplateTarget = FileConstants.COMPONENT_TEMPLATE_PATH || getHBSTemplatePath('component');
+    const componentTemplateTarget =
+        FileConstants.COMPONENT_TEMPLATE_PATH || getHBSTemplatePath('component')
     const componentTemplateString = readFile(componentTemplateTarget)
 
-    const unitTestTemplateTarget = FileConstants.UNIT_TEST_TEMPLATE_PATH || getHBSTemplatePath('unit-test');
+    const unitTestTemplateTarget =
+        FileConstants.UNIT_TEST_TEMPLATE_PATH || getHBSTemplatePath('unit-test')
     const unitTestTemplateString = readFile(unitTestTemplateTarget)
 
     components.forEach(component => {
@@ -226,14 +162,3 @@ ipcMain.on('write-files', (event, config) => {
         })
     })
 })
-
-const isMac = process.platform === 'darwin'
-
-const template = [
-    {
-        label: 'File',
-        submenu: [isMac ? { role: 'close' } : { role: 'quit' }]
-    }
-]
-
-const applicationMenu = Menu.buildFromTemplate(template)

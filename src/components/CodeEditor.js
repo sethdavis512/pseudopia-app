@@ -8,8 +8,7 @@ const CodeEditor = ({ handleChange, value }) => {
         <AceEditor
             editorProps={{ $blockScrolling: true }}
             fontSize={18}
-            height="250px"
-            mode="jsx"
+            mode="js"
             name="codeEditor"
             onChange={handleChange}
             setOptions={{
