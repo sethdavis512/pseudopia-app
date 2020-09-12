@@ -21,12 +21,9 @@ exports.getConstants = ({
         COMPONENT_PATH: `${buildPath}/${subfolderName}`,
         UNIT_TEST_PATH: `${buildPath}/${subfolderName}/__test__`,
         // Templates
-        APP_TEMPLATE_PATH:
-            appTemplatePath,
-        COMPONENT_TEMPLATE_PATH:
-            componentTemplatePath || require('../hbs-templates/component.hbs'),
-        UNIT_TEST_TEMPLATE_PATH:
-            unitTestTemplatePath || require('../hbs-templates/unit-test.hbs'),
+        APP_TEMPLATE_PATH: appTemplatePath,
+        COMPONENT_TEMPLATE_PATH: componentTemplatePath,
+        UNIT_TEST_TEMPLATE_PATH: unitTestTemplatePath,
         // Aux
         BASE_COMPONENT_NAME: baseComponentName,
         EXTENSION: fileExtension || 'tsx',
@@ -80,7 +77,6 @@ const dirExists = path => fs.existsSync(path)
 exports.readFile = filePath => fs.readFileSync(filePath, 'utf-8')
 
 exports.writeFile = ({ directory, fileName, fileExtension, content }) => {
-    console.log('writeFile', { directory, fileName, fileExtension, content });
     if (!fileName || !content) return
 
     if (!dirExists(directory)) {
@@ -91,8 +87,12 @@ exports.writeFile = ({ directory, fileName, fileExtension, content }) => {
 }
 
 exports.handleHandleBarCompileReturnContent = (template, data) => {
-    const compiled = Handlebars.compile(template, { strict: true })
-    return compiled(data)
+    try {
+        const compiled = Handlebars.compile(template, { strict: true })
+        return compiled(data)
+    } catch(error) {
+        console.log(error);
+    }
 }
 
 exports.handleAST = body => {

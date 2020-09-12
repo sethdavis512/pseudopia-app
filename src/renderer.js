@@ -31,9 +31,16 @@ const App = () => {
         setFileExtension(event.target.value)
 
     const [buildPath, setBuildPath] = useState('')
+    const clearBuildPath = () => setBuildPath('')
+
     const [appTemplatePath, setAppTemplatePath] = useState('')
+    const clearAppTemplatePath = () => setAppTemplatePath('')
+
     const [componentTemplatePath, setComponentTemplatePath] = useState('')
+    const clearComponentTemplatePath = () => setComponentTemplatePath('')
+
     const [unitTestTemplatePath, setUnitTestTemplatePath] = useState('')
+    const clearUnitTestTemplatePath = () => setUnitTestTemplatePath('')
 
     // Functionality
     const createHandleDialogOpen = (setFn, isFile = false) => async () => {
@@ -134,7 +141,7 @@ const App = () => {
                         </FormField>
                         <FormField label="Custom Templates (Optional)">
                             <div className="box">
-                                <FormField label="App Template Path">
+                                <FormField>
                                     {appTemplatePath && (
                                         <FormField>
                                             <CodeBlock code={appTemplatePath} />
@@ -142,15 +149,27 @@ const App = () => {
                                     )}
                                     <Button
                                         fullwidth
-                                        className="is-primary is-outlined"
-                                        text="Set App Template Path"
-                                        handleClick={createHandleDialogOpen(
-                                            setAppTemplatePath,
-                                            true
-                                        )}
+                                        className={`${
+                                            appTemplatePath
+                                                ? 'is-danger'
+                                                : 'is-primary'
+                                        } is-outlined`}
+                                        text={`${
+                                            appTemplatePath
+                                                ? 'Clear'
+                                                : 'Set'
+                                        } App Template Path`}
+                                        handleClick={
+                                            appTemplatePath
+                                                ? clearAppTemplatePath
+                                                : createHandleDialogOpen(
+                                                      setAppTemplatePath,
+                                                      true
+                                                  )
+                                        }
                                     />
                                 </FormField>
-                                <FormField label="Component Template Path">
+                                <FormField>
                                     {componentTemplatePath && (
                                         <FormField>
                                             <CodeBlock
@@ -160,15 +179,27 @@ const App = () => {
                                     )}
                                     <Button
                                         fullwidth
-                                        className="is-primary is-outlined"
-                                        text="Set Component Template Path"
-                                        handleClick={createHandleDialogOpen(
-                                            setComponentTemplatePath,
-                                            true
-                                        )}
+                                        className={`${
+                                            componentTemplatePath
+                                                ? 'is-danger'
+                                                : 'is-primary'
+                                        } is-outlined`}
+                                        text={`${
+                                            componentTemplatePath
+                                                ? 'Clear'
+                                                : 'Set'
+                                        } Component Template Path`}
+                                        handleClick={
+                                            componentTemplatePath
+                                                ? clearComponentTemplatePath
+                                                : createHandleDialogOpen(
+                                                      setComponentTemplatePath,
+                                                      true
+                                                  )
+                                        }
                                     />
                                 </FormField>
-                                <FormField label="Unit Test Template Path">
+                                <FormField>
                                     {unitTestTemplatePath && (
                                         <FormField>
                                             <CodeBlock
@@ -178,12 +209,24 @@ const App = () => {
                                     )}
                                     <Button
                                         fullwidth
-                                        className="is-primary is-outlined"
-                                        text="Set Unit Test Template Path"
-                                        handleClick={createHandleDialogOpen(
-                                            setUnitTestTemplatePath,
-                                            true
-                                        )}
+                                        className={`${
+                                            unitTestTemplatePath
+                                                ? 'is-danger'
+                                                : 'is-primary'
+                                        } is-outlined`}
+                                        text={`${
+                                            unitTestTemplatePath
+                                                ? 'Clear'
+                                                : 'Set'
+                                        } Unit Test Template Path`}
+                                        handleClick={
+                                            unitTestTemplatePath
+                                                ? clearUnitTestTemplatePath
+                                                : createHandleDialogOpen(
+                                                      setUnitTestTemplatePath,
+                                                      true
+                                                  )
+                                        }
                                     />
                                 </FormField>
                             </div>

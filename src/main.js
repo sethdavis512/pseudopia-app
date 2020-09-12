@@ -1,3 +1,4 @@
+const path = require('path')
 const {
     app,
     BrowserWindow,
@@ -12,7 +13,8 @@ const {
     getConstants,
     handleAST,
     handleHandleBarCompileReturnContent,
-    writeFile
+    writeFile,
+    readFile
 } = require('./utils/utilFunctions')
 const Handlebars = require('handlebars')
 
@@ -30,6 +32,7 @@ const createWindow = () => {
         width: 400,
         height: 600,
         show: false,
+        resizable: false,
         fullscreenable: false,
         webPreferences: {
             nodeIntegration: true
@@ -44,11 +47,11 @@ const createWindow = () => {
     // Open the DevTools.
     mainWindow.webContents.openDevTools()
 
-    // mainWindow.on('blur', () => {
-    //     if (!mainWindow.webContents.isDevToolsOpened()) {
-    //         mainWindow.hide()
-    //     }
-    // })
+    mainWindow.on('blur', () => {
+        if (!mainWindow.webContents.isDevToolsOpened()) {
+            mainWindow.hide()
+        }
+    })
 
     mainWindow.once('ready-to-show', () => {
         mainWindow.show()
@@ -56,6 +59,7 @@ const createWindow = () => {
 
     mainWindow.on('closed', () => {
         mainWindow = null
+        tray = null
     })
 }
 
@@ -63,7 +67,7 @@ const createWindow = () => {
 let tray = null
 
 const createTray = () => {
-    tray = new Tray('')
+    tray = new Tray(path.resolve('src/images/pseudopia-icon.png'))
     tray.on('right-click', toggleWindow)
     tray.on('double-click', toggleWindow)
     tray.on('click', function (event) {
@@ -76,13 +80,46 @@ const createTray = () => {
     })
 }
 
+const toggleWindow = () => {
+    if (mainWindow.isVisible()) {
+        mainWindow.hide()
+    } else {
+        showWindow()
+    }
+}
+
+const showWindow = () => {
+    const position = getWindowPosition()
+    mainWindow.setPosition(position.x, position.y, false)
+    mainWindow.show()
+    mainWindow.focus()
+}
+
+const getWindowPosition = () => {
+    const windowBounds = mainWindow.getBounds()
+    const trayBounds = tray.getBounds()
+
+    // Center window horizontally below the tray icon
+    const x = Math.round(
+        trayBounds.x + trayBounds.width / 2 - windowBounds.width / 2
+    )
+
+    // Position window 4 pixels vertically below the tray icon
+    const y = Math.round(trayBounds.y + trayBounds.height + 4)
+
+    return { x: x, y: y }
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
     createWindow()
-    // createTray()
+    createTray()
 })
+
+// Don't show in dock
+app.dock.hide()
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -91,6 +128,10 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit()
     }
+})
+
+ipcMain.on('show-window', () => {
+    showWindow()
 })
 
 app.on('activate', () => {
@@ -118,6 +159,8 @@ ipcMain.handle('open-file', async (event, isFile) => {
     return response.filePaths[0]
 })
 
+const getHBSTemplatePath = (fileName) => path.resolve(`src/hbs-templates/${fileName}.hbs`)
+
 ipcMain.on('write-files', (event, config) => {
     const AST = getASTData(config.pseudo)
     const FileConstants = getConstants(config)
@@ -125,20 +168,8 @@ ipcMain.on('write-files', (event, config) => {
     const components = handleAST(AST.body)
 
     // Write base component ie App
-    const appTemplateString = `import React from 'react'
-
-{{#each imports }}
-import {{ name }} from './{{ componentDirName }}/{{ name }}'
-{{/each}}
-
-const {{ baseComponentName }}{{#if (isTypescript extension)}}: React.FC{{/if}} = () => {
-    return (
-        {{ render }}
-    )
-}
-
-export default {{ baseComponentName}}
-`
+    const appTemplateTarget = FileConstants.APP_TEMPLATE_PATH || getHBSTemplatePath('app');
+    const appTemplateString = readFile(appTemplateTarget)
     const renderContent = new Handlebars.SafeString(config.pseudo)
     const appContent = handleHandleBarCompileReturnContent(appTemplateString, {
         render: renderContent,
@@ -158,37 +189,11 @@ export default {{ baseComponentName}}
     })
 
     // Write components
-    const componentTemplateString = `import React, { ReactNode } from 'react'
+    const componentTemplateTarget = FileConstants.COMPONENT_TEMPLATE_PATH || getHBSTemplatePath('component');
+    const componentTemplateString = readFile(componentTemplateTarget)
 
-{{#if (isTypescript extension)}}
-interface {{ name }}Props {
-    children: ReactNode
-    {{#each props }}
-    {{ this }}: any
-    {{/each}}
-}
-{{/if}}
-
-const {{ name }}{{#if (isTypescript extension)}}: React.FC<{{ name }}Props>{{/if}} = ({ children, {{#each props }}{{ this }},{{/each}} }) => {
-    return (
-        <div>{children}</div>
-    )
-}
-
-export default {{ name }}
-`
-
-    const unitTestTemplateString = `import React from 'react'
-import { render } from 'react-testing-library'
-import {{ name }} from '../{{ name }}'
-
-describe('{{ name }}', () => {
-    it('should match default snapshot', () => {
-        const container = render(<{{ name }} />)
-        expect(container.firstChild).toMatchSnapshot()
-    })
-})
-`
+    const unitTestTemplateTarget = FileConstants.UNIT_TEST_TEMPLATE_PATH || getHBSTemplatePath('unit-test');
+    const unitTestTemplateString = readFile(unitTestTemplateTarget)
 
     components.forEach(component => {
         const componentContent = handleHandleBarCompileReturnContent(
@@ -222,14 +227,13 @@ describe('{{ name }}', () => {
     })
 })
 
-// Menu
-const menuTemplate = [
+const isMac = process.platform === 'darwin'
+
+const template = [
     {
         label: 'File',
-        click() {
-            console.log('yoo file opened')
-        }
+        submenu: [isMac ? { role: 'close' } : { role: 'quit' }]
     }
 ]
 
-const applicationMenu = Menu.buildFromTemplate(menuTemplate)
+const applicationMenu = Menu.buildFromTemplate(template)
