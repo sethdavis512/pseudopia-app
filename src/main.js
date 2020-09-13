@@ -12,6 +12,7 @@ const Handlebars = require('handlebars')
 const isDev = require('electron-is-dev')
 
 const getHBSTemplatePath = fileName => `${__dirname}/src/hbs-templates/${fileName}.hbs`
+const getImagePath = fileNameWithExt => `${__dirname}/src/images/${fileNameWithExt}`
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -30,7 +31,7 @@ const createWindow = () => {
         webPreferences: {
             nodeIntegration: true
         },
-        icon: path.resolve(`src/images/pseudopia-app-icon-256.ico`)
+        icon: getImagePath('pseudopia-app-icon-256.ico')
     })
 
     // and load the index.html of the app.
