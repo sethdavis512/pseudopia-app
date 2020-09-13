@@ -1,20 +1,22 @@
-import React, { useState } from 'react'
-import { render } from 'react-dom'
 const { ipcRenderer } = require('electron')
+
+import React, { useState, useEffect } from 'react'
+import { render } from 'react-dom'
 
 import Button from './components/Button'
 import CodeBlock from './components/CodeBlock'
 import CodeEditor from './components/CodeEditor'
 import FormField from './components/FormField'
 import TextInput from './components/TextInput'
-import logo from './images/pseudopia-logo.svg'
+import Notification from './components/Notification'
 
+import logo from './images/pseudopia-logo.svg'
 import './styles/App.scss'
 
 const App = () => {
     // State
     const [pseudo, setPseudo] = useState(
-        '<Wrapper>\n    <Pseudopia />\n</Wrapper>'
+        '<Layout>\n    <Header />\n    <Main />\n    <Footer />\n</Layout>'
     )
     const handleTextChange = text => setPseudo(text)
 
@@ -41,6 +43,42 @@ const App = () => {
 
     const [unitTestTemplatePath, setUnitTestTemplatePath] = useState('')
     const clearUnitTestTemplatePath = () => setUnitTestTemplatePath('')
+
+    const [errorMessage, setErrorMessage] = useState('')
+    const handleErrorMessage = error => setErrorMessage(`ERROR: ${error.message}`)
+
+    const [successMessage, setSuccessMessage] = useState('')
+    const handleSuccessMessage = () => setSuccessMessage('Successfully compiled!')
+
+    useEffect(() => {
+        ipcRenderer.on('hbs-compile-error', (event, error) => {
+            handleErrorMessage(error)
+        })
+
+        ipcRenderer.on('compile-success', (event, error) => {
+            handleSuccessMessage()
+        })
+    }, [])
+
+    useEffect(() => {
+        const successTimeout = setTimeout(() => {
+            setSuccessMessage('')
+        }, 3000)
+
+        return () => {
+            clearTimeout(successTimeout)
+        }
+    }, [successMessage])
+
+    useEffect(() => {
+        const errorTimeout = setTimeout(() => {
+            setErrorMessage('')
+        }, 3000)
+
+        return () => {
+            clearTimeout(errorTimeout)
+        }
+    }, [errorMessage])
 
     // Functionality
     const createHandleDialogOpen = (setFn, isFile = false) => async () => {
@@ -134,9 +172,7 @@ const App = () => {
                                 handleClick={
                                     buildPath
                                         ? clearBuildPath
-                                        : createHandleDialogOpen(
-                                              setBuildPath
-                                          )
+                                        : createHandleDialogOpen(setBuildPath)
                                 }
                             />
                         </FormField>
@@ -231,6 +267,12 @@ const App = () => {
                             </div>
                         </FormField>
                         <FormField label="Actions">
+                            {errorMessage && (
+                                <Notification>{errorMessage}</Notification>
+                            )}
+                            {successMessage && (
+                                <Notification className="is-primary">{successMessage}</Notification>
+                            )}
                             <Button
                                 fullwidth
                                 className="is-primary"

@@ -86,12 +86,12 @@ exports.writeFile = ({ directory, fileName, fileExtension, content }) => {
     fs.writeFileSync(`${directory}/${fileName}.${fileExtension}`, content)
 }
 
-exports.handleHandleBarCompileReturnContent = (template, data) => {
+exports.handleHandleBarCompileReturnContent = (template, data, errorCallback) => {
     try {
         const compiled = Handlebars.compile(template, { strict: true })
         return compiled(data)
     } catch(error) {
-        console.log(error);
+        errorCallback(error)
     }
 }
 

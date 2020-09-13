@@ -30,6 +30,14 @@ module.exports = {
                         '.webpack/main',
                         'src/images'
                     )
+                },
+                {
+                    from: path.resolve(__dirname, 'src/images/pseudopia-logo.svg'),
+                    to: path.resolve(
+                        __dirname,
+                        '.webpack/renderer/main_window',
+                        'images/pseudopia-logo.svg'
+                    )
                 }
             ]
         })
