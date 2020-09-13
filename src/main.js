@@ -1,10 +1,5 @@
 const path = require('path')
-const {
-    app,
-    BrowserWindow,
-    dialog,
-    ipcMain
-} = require('electron')
+const { app, BrowserWindow, dialog, ipcMain } = require('electron')
 const {
     getASTData,
     getConstants,
@@ -14,9 +9,9 @@ const {
     readFile
 } = require('./utils/utilFunctions')
 const Handlebars = require('handlebars')
+const isDev = require('electron-is-dev')
 
-const getHBSTemplatePath = fileName =>
-    require(`${__dirname}/src/hbs-templates/${fileName}.hbs`)
+const getHBSTemplatePath = fileName => `${__dirname}/src/hbs-templates/${fileName}.hbs`
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -103,6 +98,7 @@ ipcMain.on('write-files', (event, config) => {
     // Write base component ie App
     const appTemplateTarget =
         FileConstants.APP_TEMPLATE_PATH || getHBSTemplatePath('app')
+    console.log('appTemplateTarget', appTemplateTarget)
     const appTemplateString = readFile(appTemplateTarget)
     const renderContent = new Handlebars.SafeString(config.pseudo)
     const appContent = handleHandleBarCompileReturnContent(appTemplateString, {
