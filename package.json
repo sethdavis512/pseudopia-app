@@ -2,7 +2,7 @@
     "name": "pseudopia-app",
     "productName": "pseudopia-app",
     "version": "1.0.0",
-    "description": "My Electron application description",
+    "description": "Write pseudo React, get components",
     "main": "./.webpack/main",
     "scripts": {
         "start": "electron-forge start",
