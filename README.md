@@ -21,7 +21,7 @@ Pseudo code:
 Generates:
 
 ```
-./output/
+./your-directory/
 ├── App.tsx
 └── components
     ├── Footer.tsx
@@ -42,6 +42,10 @@ Generates:
 ```
 npm i && npm start
 ```
+
+## Customization
+
+Pseudopia allows you to use your own Handlebar templates. (Docs coming soon)
 
 ## Contributing
 
