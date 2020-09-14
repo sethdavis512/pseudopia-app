@@ -7,10 +7,11 @@ import Button from './components/Button'
 import CodeBlock from './components/CodeBlock'
 import CodeEditor from './components/CodeEditor'
 import FormField from './components/FormField'
-import TextInput from './components/TextInput'
+import Logo from './components/Logo'
 import Notification from './components/Notification'
+import PathButton from './components/PathButton'
+import TextInput from './components/TextInput'
 
-import logo from './images/pseudopia-logo.svg'
 import './styles/App.scss'
 
 const App = () => {
@@ -45,10 +46,12 @@ const App = () => {
     const clearUnitTestTemplatePath = () => setUnitTestTemplatePath('')
 
     const [errorMessage, setErrorMessage] = useState('')
-    const handleErrorMessage = error => setErrorMessage(`ERROR: ${error.message}`)
+    const handleErrorMessage = error =>
+        setErrorMessage(`ERROR: ${error.message}`)
 
     const [successMessage, setSuccessMessage] = useState('')
-    const handleSuccessMessage = () => setSuccessMessage('Successfully compiled!')
+    const handleSuccessMessage = () =>
+        setSuccessMessage('Successfully compiled!')
 
     useEffect(() => {
         ipcRenderer.on('hbs-compile-error', (event, error) => {
@@ -108,13 +111,9 @@ const App = () => {
     const disableBuildButton = !buildPath || !baseComponentName || !pseudo
 
     return (
-        <div style={{ padding: '1rem' }}>
+        <div className="app">
             <div className="logo-container">
-                <img
-                    src={logo}
-                    style={{ padding: '1.5rem 0' }}
-                    alt="Pseudopia Logo"
-                />
+                <Logo />
             </div>
             <div className="columns reverse-columns">
                 <div className="column is-4">
@@ -161,19 +160,11 @@ const App = () => {
                                     <CodeBlock code={buildPath} />
                                 </FormField>
                             )}
-                            <Button
-                                fullwidth
-                                className={`${
-                                    buildPath ? 'is-danger' : 'is-primary'
-                                } is-outlined`}
-                                text={`${
-                                    buildPath ? 'Clear' : 'Set'
-                                } Build Path`}
-                                handleClick={
-                                    buildPath
-                                        ? clearBuildPath
-                                        : createHandleDialogOpen(setBuildPath)
-                                }
+                            <PathButton
+                                clearFn={clearBuildPath}
+                                setFn={createHandleDialogOpen(setBuildPath)}
+                                text="Build Path"
+                                toggleCondition={buildPath}
                             />
                         </FormField>
                         <FormField label="Custom Templates (Optional)">
@@ -184,24 +175,14 @@ const App = () => {
                                             <CodeBlock code={appTemplatePath} />
                                         </FormField>
                                     )}
-                                    <Button
-                                        fullwidth
-                                        className={`${
-                                            appTemplatePath
-                                                ? 'is-danger'
-                                                : 'is-primary'
-                                        } is-outlined`}
-                                        text={`${
-                                            appTemplatePath ? 'Clear' : 'Set'
-                                        } Base Component Path`}
-                                        handleClick={
-                                            appTemplatePath
-                                                ? clearAppTemplatePath
-                                                : createHandleDialogOpen(
-                                                      setAppTemplatePath,
-                                                      true
-                                                  )
-                                        }
+                                    <PathButton
+                                        clearFn={clearAppTemplatePath}
+                                        setFn={createHandleDialogOpen(
+                                            setAppTemplatePath,
+                                            true
+                                        )}
+                                        text="Base Component Path"
+                                        toggleCondition={appTemplatePath}
                                     />
                                 </FormField>
                                 <FormField>
@@ -212,26 +193,14 @@ const App = () => {
                                             />
                                         </FormField>
                                     )}
-                                    <Button
-                                        fullwidth
-                                        className={`${
-                                            componentTemplatePath
-                                                ? 'is-danger'
-                                                : 'is-primary'
-                                        } is-outlined`}
-                                        text={`${
-                                            componentTemplatePath
-                                                ? 'Clear'
-                                                : 'Set'
-                                        } Component Path`}
-                                        handleClick={
-                                            componentTemplatePath
-                                                ? clearComponentTemplatePath
-                                                : createHandleDialogOpen(
-                                                      setComponentTemplatePath,
-                                                      true
-                                                  )
-                                        }
+                                    <PathButton
+                                        clearFn={clearComponentTemplatePath}
+                                        setFn={createHandleDialogOpen(
+                                            setComponentTemplatePath,
+                                            true
+                                        )}
+                                        text="Component Path"
+                                        toggleCondition={componentTemplatePath}
                                     />
                                 </FormField>
                                 <FormField>
@@ -242,37 +211,19 @@ const App = () => {
                                             />
                                         </FormField>
                                     )}
-                                    <Button
-                                        fullwidth
-                                        className={`${
-                                            unitTestTemplatePath
-                                                ? 'is-danger'
-                                                : 'is-primary'
-                                        } is-outlined`}
-                                        text={`${
-                                            unitTestTemplatePath
-                                                ? 'Clear'
-                                                : 'Set'
-                                        } Unit Test Path`}
-                                        handleClick={
-                                            unitTestTemplatePath
-                                                ? clearUnitTestTemplatePath
-                                                : createHandleDialogOpen(
-                                                      setUnitTestTemplatePath,
-                                                      true
-                                                  )
-                                        }
+                                    <PathButton
+                                        clearFn={clearUnitTestTemplatePath}
+                                        setFn={createHandleDialogOpen(
+                                            setUnitTestTemplatePath,
+                                            true
+                                        )}
+                                        text="Unit Test Path"
+                                        toggleCondition={unitTestTemplatePath}
                                     />
                                 </FormField>
                             </div>
                         </FormField>
                         <FormField label="Actions">
-                            {errorMessage && (
-                                <Notification>{errorMessage}</Notification>
-                            )}
-                            {successMessage && (
-                                <Notification className="is-primary">{successMessage}</Notification>
-                            )}
                             <Button
                                 fullwidth
                                 className="is-primary"
@@ -292,6 +243,14 @@ const App = () => {
                         />
                     </FormField>
                 </div>
+            </div>
+            <div className="notification-bar">
+                {errorMessage && <Notification>{errorMessage}</Notification>}
+                {successMessage && (
+                    <Notification className="is-primary">
+                        {successMessage}
+                    </Notification>
+                )}
             </div>
         </div>
     )
