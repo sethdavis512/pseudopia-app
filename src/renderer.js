@@ -11,38 +11,52 @@ import Logo from './components/Logo'
 import Notification from './components/Notification'
 import PathButton from './components/PathButton'
 import TextInput from './components/TextInput'
+import useLocalStorage from './hooks/useLocalStorage'
 
 import './styles/App.scss'
 
 const App = () => {
     // State
-    const [pseudo, setPseudo] = useState(
+    const [pseudo, setPseudo] = useLocalStorage(
+        'pseudo',
         '<Layout>\n    <Header />\n    <Main />\n    <Footer />\n</Layout>'
     )
     const handleTextChange = text => setPseudo(text)
 
-    const [baseComponentName, setBaseComponentName] = useState('App')
+    const [baseComponentName, setBaseComponentName] = useLocalStorage(
+        'baseComponentName',
+        'App'
+    )
     const handleBaseComponentNameChange = event =>
         setBaseComponentName(event.target.value)
 
-    const [subfolderName, setSubfolderName] = useState('components')
+    const [subfolderName, setSubfolderName] = useLocalStorage(
+        'subfolderName',
+        'components'
+    )
     const handleSubfolderNameChange = event =>
         setSubfolderName(event.target.value)
 
-    const [fileExtension, setFileExtension] = useState('tsx')
+    const [fileExtension, setFileExtension] = useLocalStorage(
+        'fileExtension',
+        'tsx'
+    )
     const handleFileExtensionClick = event =>
         setFileExtension(event.target.value)
 
-    const [buildPath, setBuildPath] = useState('')
+    const [buildPath, setBuildPath] = useLocalStorage('buildPath', '')
     const clearBuildPath = () => setBuildPath('')
 
-    const [appTemplatePath, setAppTemplatePath] = useState('')
-    const clearAppTemplatePath = () => setAppTemplatePath('')
+    const [
+        baseComponentTemplatePath,
+        setBaseComponentTemplatePath
+    ] = useLocalStorage('baseComponentTemplatePath', '')
+    const clearAppTemplatePath = () => setBaseComponentTemplatePath('')
 
-    const [componentTemplatePath, setComponentTemplatePath] = useState('')
+    const [componentTemplatePath, setComponentTemplatePath] = useLocalStorage('componentTemplatePath', '')
     const clearComponentTemplatePath = () => setComponentTemplatePath('')
 
-    const [unitTestTemplatePath, setUnitTestTemplatePath] = useState('')
+    const [unitTestTemplatePath, setUnitTestTemplatePath] = useLocalStorage('unitTestTemplatePath', '')
     const clearUnitTestTemplatePath = () => setUnitTestTemplatePath('')
 
     const [errorMessage, setErrorMessage] = useState('')
@@ -91,7 +105,7 @@ const App = () => {
 
     const handleBuild = () => {
         ipcRenderer.send('write-files', {
-            appTemplatePath,
+            baseComponentTemplatePath,
             baseComponentName,
             buildPath,
             componentTemplatePath,
@@ -170,19 +184,23 @@ const App = () => {
                         <FormField label="Custom Templates (Optional)">
                             <div className="box">
                                 <FormField>
-                                    {appTemplatePath && (
+                                    {baseComponentTemplatePath && (
                                         <FormField>
-                                            <CodeBlock code={appTemplatePath} />
+                                            <CodeBlock
+                                                code={baseComponentTemplatePath}
+                                            />
                                         </FormField>
                                     )}
                                     <PathButton
                                         clearFn={clearAppTemplatePath}
                                         setFn={createHandleDialogOpen(
-                                            setAppTemplatePath,
+                                            setBaseComponentTemplatePath,
                                             true
                                         )}
                                         text="Base Component Path"
-                                        toggleCondition={appTemplatePath}
+                                        toggleCondition={
+                                            baseComponentTemplatePath
+                                        }
                                     />
                                 </FormField>
                                 <FormField>

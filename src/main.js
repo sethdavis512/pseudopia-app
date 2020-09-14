@@ -99,16 +99,16 @@ ipcMain.on('write-files', (event, config) => {
     const components = handleAST(AST.body)
 
     // Write base component ie App
-    const appTemplateTarget =
-        FileConstants.APP_TEMPLATE_PATH || getHBSTemplatePath('app')
-    const appTemplateString = readFile(appTemplateTarget)
+    const baseComponentTemplateTarget =
+        FileConstants.BASE_COMPONENT_TEMPLATE_PATH || getHBSTemplatePath('base-component')
+    const baseComponentTemplateString = readFile(baseComponentTemplateTarget)
     const renderContent = new Handlebars.SafeString(config.pseudo)
 
     const handleHBSError = (error) => {
         mainWindow.webContents.send('hbs-compile-error', error)
         hasError = true
     };
-    const appContent = handleHandleBarCompileReturnContent(appTemplateString, {
+    const appContent = handleHandleBarCompileReturnContent(baseComponentTemplateString, {
         render: renderContent,
         name: FileConstants.BASE_COMPONENT_NAME,
         extension: FileConstants.EXTENSION,
@@ -119,7 +119,7 @@ ipcMain.on('write-files', (event, config) => {
     }, handleHBSError)
 
     writeFile({
-        directory: FileConstants.APP_PATH,
+        directory: FileConstants.BUILD_PATH,
         fileName: FileConstants.BASE_COMPONENT_NAME,
         fileExtension: FileConstants.EXTENSION,
         content: appContent

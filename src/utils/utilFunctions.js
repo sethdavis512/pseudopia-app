@@ -9,7 +9,7 @@ Handlebars.registerHelper('isTypescript', value => value === 'tsx')
 exports.getConstants = ({
     baseComponentName,
     buildPath,
-    appTemplatePath,
+    baseComponentTemplatePath,
     componentTemplatePath,
     unitTestTemplatePath,
     subfolderName,
@@ -17,11 +17,11 @@ exports.getConstants = ({
 }) => {
     return {
         // Paths
-        APP_PATH: buildPath,
+        BUILD_PATH: buildPath,
         COMPONENT_PATH: `${buildPath}/${subfolderName}`,
         UNIT_TEST_PATH: `${buildPath}/${subfolderName}/__test__`,
         // Templates
-        APP_TEMPLATE_PATH: appTemplatePath,
+        BASE_COMPONENT_TEMPLATE_PATH: baseComponentTemplatePath,
         COMPONENT_TEMPLATE_PATH: componentTemplatePath,
         UNIT_TEST_TEMPLATE_PATH: unitTestTemplatePath,
         // Aux
