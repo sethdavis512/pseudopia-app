@@ -82,20 +82,15 @@ const App = () => {
             setSuccessMessage('')
         }, 3000)
 
-        return () => {
-            clearTimeout(successTimeout)
-        }
-    }, [successMessage])
-
-    useEffect(() => {
         const errorTimeout = setTimeout(() => {
             setErrorMessage('')
         }, 3000)
 
         return () => {
+            clearTimeout(successTimeout)
             clearTimeout(errorTimeout)
         }
-    }, [errorMessage])
+    }, [successMessage, errorMessage])
 
     // Functionality
     const createHandleDialogOpen = (setFn, isFile = false) => async () => {
