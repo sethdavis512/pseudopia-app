@@ -91,6 +91,8 @@ ipcMain.handle('open-file', async (event, isFile) => {
 })
 
 ipcMain.on('write-files', (event, config) => {
+    let hasError = false;
+
     const AST = getASTData(config.pseudo)
     const FileConstants = getConstants(config)
 
@@ -102,7 +104,10 @@ ipcMain.on('write-files', (event, config) => {
     const appTemplateString = readFile(appTemplateTarget)
     const renderContent = new Handlebars.SafeString(config.pseudo)
 
-    const handleHBSError = (error) => mainWindow.webContents.send('hbs-compile-error', error);
+    const handleHBSError = (error) => {
+        mainWindow.webContents.send('hbs-compile-error', error)
+        hasError = true
+    };
     const appContent = handleHandleBarCompileReturnContent(appTemplateString, {
         render: renderContent,
         name: FileConstants.BASE_COMPONENT_NAME,
@@ -160,5 +165,7 @@ ipcMain.on('write-files', (event, config) => {
         })
     })
 
-    mainWindow.webContents.send('compile-success')
+    if (!hasError) {
+        mainWindow.webContents.send('compile-success')
+    }
 })
