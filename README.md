@@ -60,7 +60,7 @@ Currently, templates require at least one piece/key of data to be handed off to 
 
 See tables below.
 
-### Variables for Base Component Handlebar template
+### Variables for Base Component Handlebar template ([Example](src/hbs-templates/base-component.hbs))
 
 | Key       | Type                                                | Description                                           |
 | --------- | --------------------------------------------------- | ----------------------------------------------------- |
@@ -69,7 +69,7 @@ See tables below.
 | name      | `string`                                            | Name of base component                                |
 | render    | `string`                                            | Content from the Pseudopia code editor                |
 
-### Variables for Component Handlebar template
+### Variables for Component Handlebar template ([Example](src/hbs-templates/component.hbs))
 
 | Key       | Type       | Description                       |
 | --------- | ---------- | --------------------------------- |
@@ -77,7 +77,7 @@ See tables below.
 | name      | `string`   | Name of component                 |
 | props     | `string[]` | Component props                   |
 
-### Variables for Unit Test Handlebar template
+### Variables for Unit Test Handlebar template ([Example](src/hbs-templates/unit-test.hbs))
 
 | Key  | Type     | Description       |
 | ---- | -------- | ----------------- |
