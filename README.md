@@ -6,11 +6,13 @@
 
 ## Features
 
-👟 Fast - Quickly build out your app ideas 
+⚡️ Fast - Quickly build out your app ideas 
 
 👍🏻 Easy - Templates are built-in, just write pseudo React - get components
 
-⚙️ Customizable - Create your own Handlebar templates for Pseudopia to use
+🦑 Flexible - Write starter components or deeply nested ones 
+
+🧩 Customizable - Create your own Handlebar templates for Pseudopia to use
 
 📺 [Watch a quick video](https://res.cloudinary.com/setholito/video/upload/v1600137138/pseudopia/pseudopia-intro-short.mp4)
 
@@ -82,6 +84,16 @@ See tables below.
 | Key  | Type     | Description       |
 | ---- | -------- | ----------------- |
 | name | `string` | Name of component |
+
+## Roadmap
+
+I really want to make this app stand out. Here are a few things that I plan on working on:
+
+- Downloadable app
+- Custom Prettier config
+- Unit test toggle on/off
+- Clear previous files before build
+- Toggleable subfolder
 
 ## Contributing
 
