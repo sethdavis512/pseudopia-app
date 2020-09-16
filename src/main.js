@@ -93,9 +93,15 @@ ipcMain.handle('open-file', async (event, isFile) => {
 ipcMain.on('write-files', (event, config) => {
     let hasError = false;
 
-    const AST = getASTData(config.pseudo)
-    const FileConstants = getConstants(config)
+    const handleASTError = (error) => {
+        mainWindow.webContents.send('compile-error', error)
+        hasError = true
+    };
+    const AST = getASTData(config.pseudo, handleASTError)
 
+    if (!AST) return;
+
+    const FileConstants = getConstants(config)
     const components = handleAST(AST.body)
 
     // Write base component ie App

@@ -57,13 +57,18 @@ const exclusionList = [
 const isExcluded = ({ openingElement }) =>
     exclusionList.indexOf(openingElement.name.name) > -1
 
-exports.getASTData = data =>
-    espree.parse(data, {
-        ecmaVersion: 6,
-        ecmaFeatures: {
-            jsx: true
-        }
-    })
+exports.getASTData = (data, errorCallback) => {
+    try {
+        espree.parse(data, {
+            ecmaVersion: 6,
+            ecmaFeatures: {
+                jsx: true
+            }
+        })
+    } catch(error) {
+        errorCallback(error)
+    }
+}
 
 exports.cleanUp = path => rimraf.sync(path, {}, err => console.log(err))
 
