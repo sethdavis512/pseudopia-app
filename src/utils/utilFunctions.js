@@ -59,7 +59,7 @@ const isExcluded = ({ openingElement }) =>
 
 exports.getASTData = (data, errorCallback) => {
     try {
-        espree.parse(data, {
+        return espree.parse(data, {
             ecmaVersion: 6,
             ecmaFeatures: {
                 jsx: true
