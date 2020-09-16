@@ -114,7 +114,7 @@ ipcMain.on('write-files', (event, config) => {
         extension: FileConstants.EXTENSION,
         imports: components.map(comp => ({
             childName: comp.name,
-            componentDirName: FileConstants.SUBFOLDER_NAME
+            componentDirName: config.hasSubfolder ? FileConstants.SUBFOLDER_NAME : null
         }))
     }, handleHBSError)
 
@@ -150,19 +150,22 @@ ipcMain.on('write-files', (event, config) => {
             content: componentContent
         })
 
-        // Write unit tests
-        const unitTestContent = handleHandleBarCompileReturnContent(
-            unitTestTemplateString,
-            {
-                name: component.name
-            }
-        )
-        writeFile({
-            directory: FileConstants.UNIT_TEST_PATH(config.hasSubfolder),
-            fileName: `${component.name}.test`,
-            fileExtension: FileConstants.EXTENSION,
-            content: unitTestContent
-        })
+        if (config.hasUnitTests) {
+            // Write unit tests
+            const unitTestContent = handleHandleBarCompileReturnContent(
+                unitTestTemplateString,
+                {
+                    name: component.name
+                }
+            )
+
+            writeFile({
+                directory: FileConstants.UNIT_TEST_PATH(config.hasSubfolder),
+                fileName: `${component.name}.test`,
+                fileExtension: FileConstants.EXTENSION,
+                content: unitTestContent
+            })
+        }
     })
 
     if (!hasError) {

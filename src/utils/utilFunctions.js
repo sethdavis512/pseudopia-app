@@ -5,6 +5,7 @@ const Handlebars = require('handlebars')
 // const prettier = require('prettier')
 
 Handlebars.registerHelper('isTypescript', value => value === 'tsx')
+Handlebars.registerHelper('isTruthy', value => !!value);
 
 exports.getConstants = ({
     baseComponentName,

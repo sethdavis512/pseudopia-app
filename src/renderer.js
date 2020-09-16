@@ -24,6 +24,7 @@ const App = () => {
         componentTemplatePath: '',
         fileExtension: 'tsx',
         hasSubfolder: true,
+        hasUnitTests: true,
         pseudo:
             '<Layout>\n    <Header />\n    <Main />\n    <Footer />\n</Layout>',
         subfolderName: 'components',
@@ -37,6 +38,7 @@ const App = () => {
         componentTemplatePath,
         fileExtension,
         hasSubfolder,
+        hasUnitTests,
         pseudo,
         subfolderName,
         unitTestTemplatePath
@@ -121,6 +123,7 @@ const App = () => {
             componentTemplatePath,
             fileExtension,
             hasSubfolder,
+            hasUnitTests,
             pseudo,
             subfolderName,
             unitTestTemplatePath
@@ -154,6 +157,11 @@ const App = () => {
                             label="Subfolder?"
                             handleChange={createHandleToggle('hasSubfolder')}
                             checked={hasSubfolder}
+                        />
+                        <Checkbox
+                            label="Unit tests?"
+                            handleChange={createHandleToggle('hasUnitTests')}
+                            checked={hasUnitTests}
                         />
                         {hasSubfolder && (
                             <FormField label="Subfolder Name">
