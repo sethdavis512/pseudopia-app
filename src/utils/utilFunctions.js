@@ -18,8 +18,12 @@ exports.getConstants = ({
     return {
         // Paths
         BUILD_PATH: buildPath,
-        COMPONENT_PATH: `${buildPath}/${subfolderName}`,
-        UNIT_TEST_PATH: `${buildPath}/${subfolderName}/__test__`,
+        COMPONENT_PATH: hasSubfolder =>
+            hasSubfolder ? `${buildPath}/${subfolderName}` : `${buildPath}`,
+        UNIT_TEST_PATH: hasSubfolder =>
+            hasSubfolder
+                ? `${buildPath}/${subfolderName}/__test__`
+                : `${buildPath}/__test__`,
         // Templates
         BASE_COMPONENT_TEMPLATE_PATH: baseComponentTemplatePath,
         COMPONENT_TEMPLATE_PATH: componentTemplatePath,
@@ -86,11 +90,15 @@ exports.writeFile = ({ directory, fileName, fileExtension, content }) => {
     fs.writeFileSync(`${directory}/${fileName}.${fileExtension}`, content)
 }
 
-exports.handleHandleBarCompileReturnContent = (template, data, errorCallback) => {
+exports.handleHandleBarCompileReturnContent = (
+    template,
+    data,
+    errorCallback
+) => {
     try {
         const compiled = Handlebars.compile(template, { strict: true })
         return compiled(data)
-    } catch(error) {
+    } catch (error) {
         errorCallback(error)
     }
 }

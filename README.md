@@ -87,13 +87,14 @@ See tables below.
 
 ## Roadmap
 
-I really want to make this app stand out. Here are a few things that I plan on working on:
+I really want to make this app stand out.  
+Here are a few things that I plan on working on:
 
+- ~~Toggleable subfolder~~
 - Downloadable app
 - Custom Prettier config
 - Unit test toggle on/off
 - Clear previous files before build
-- Toggleable subfolder
 
 ## Contributing
 

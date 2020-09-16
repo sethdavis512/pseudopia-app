@@ -74,6 +74,22 @@ label.radio {
     padding: 1rem;
 }
 
+label.checkbox {
+    color: $primary;
+    border: $pseudopia-border;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+
+    input {
+        margin-right: 0.5rem;
+    }
+
+    &:hover {
+        color: $primary;
+    }
+}
+
 @media only screen and (max-width: 768px) {
     .reverse-columns {
         display: flex;

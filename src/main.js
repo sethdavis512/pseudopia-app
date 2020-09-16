@@ -144,7 +144,7 @@ ipcMain.on('write-files', (event, config) => {
             }
         )
         writeFile({
-            directory: FileConstants.COMPONENT_PATH,
+            directory: FileConstants.COMPONENT_PATH(config.hasSubfolder),
             fileName: component.name,
             fileExtension: FileConstants.EXTENSION,
             content: componentContent
@@ -158,7 +158,7 @@ ipcMain.on('write-files', (event, config) => {
             }
         )
         writeFile({
-            directory: FileConstants.UNIT_TEST_PATH,
+            directory: FileConstants.UNIT_TEST_PATH(config.hasSubfolder),
             fileName: `${component.name}.test`,
             fileExtension: FileConstants.EXTENSION,
             content: unitTestContent

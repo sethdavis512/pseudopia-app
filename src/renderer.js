@@ -14,6 +14,7 @@ import TextInput from './components/TextInput'
 import useLocalStorage from './hooks/useLocalStorage'
 
 import './styles/App.scss'
+import Checkbox from './components/Checkbox'
 
 const App = () => {
     const [state, setState] = useLocalStorage('app', {
@@ -22,6 +23,7 @@ const App = () => {
         buildPath: '',
         componentTemplatePath: '',
         fileExtension: 'tsx',
+        hasSubfolder: true,
         pseudo:
             '<Layout>\n    <Header />\n    <Main />\n    <Footer />\n</Layout>',
         subfolderName: 'components',
@@ -34,6 +36,7 @@ const App = () => {
         buildPath,
         componentTemplatePath,
         fileExtension,
+        hasSubfolder,
         pseudo,
         subfolderName,
         unitTestTemplatePath
@@ -57,6 +60,13 @@ const App = () => {
         setState({
             ...state,
             [targetKey]: ''
+        })
+    }
+
+    const createHandleToggle = targetKey => () => {
+        setState({
+            ...state,
+            [targetKey]: !state[targetKey]
         })
     }
 
@@ -110,6 +120,7 @@ const App = () => {
             buildPath,
             componentTemplatePath,
             fileExtension,
+            hasSubfolder,
             pseudo,
             subfolderName,
             unitTestTemplatePath
@@ -139,14 +150,21 @@ const App = () => {
                                 value={baseComponentName}
                             />
                         </FormField>
-                        <FormField label="Subfolder Name">
-                            <TextInput
-                                handleChange={createHandleChange(
-                                    'subfolderName'
-                                )}
-                                value={subfolderName}
-                            />
-                        </FormField>
+                        <Checkbox
+                            label="Subfolder?"
+                            handleChange={createHandleToggle('hasSubfolder')}
+                            checked={hasSubfolder}
+                        />
+                        {hasSubfolder && (
+                            <FormField label="Subfolder Name">
+                                <TextInput
+                                    handleChange={createHandleChange(
+                                        'subfolderName'
+                                    )}
+                                    value={subfolderName}
+                                />
+                            </FormField>
+                        )}
                         <FormField label="File Type">
                             <div className="buttons has-addons">
                                 <Button
