@@ -11,8 +11,10 @@ const {
 const Handlebars = require('handlebars')
 const isDev = require('electron-is-dev')
 
-const getHBSTemplatePath = fileName => `${__dirname}/src/hbs-templates/${fileName}.hbs`
-const getImagePath = fileNameWithExt => `${__dirname}/src/images/${fileNameWithExt}`
+const getHBSTemplatePath = fileName =>
+    `${__dirname}/src/hbs-templates/${fileName}.hbs`
+const getImagePath = fileNameWithExt =>
+    `${__dirname}/src/images/${fileNameWithExt}`
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -91,38 +93,45 @@ ipcMain.handle('open-file', async (event, isFile) => {
 })
 
 ipcMain.on('write-files', (event, config) => {
-    let hasError = false;
+    let hasError = false
 
-    const handleASTError = (error) => {
+    const handleASTError = error => {
         mainWindow.webContents.send('compile-error', error)
         hasError = true
-    };
+    }
     const AST = getASTData(config.pseudo, handleASTError)
 
-    if (!AST) return;
+    if (!AST) return
 
     const FileConstants = getConstants(config)
     const components = handleAST(AST.body)
 
     // Write base component ie App
     const baseComponentTemplateTarget =
-        FileConstants.BASE_COMPONENT_TEMPLATE_PATH || getHBSTemplatePath('base-component')
+        FileConstants.BASE_COMPONENT_TEMPLATE_PATH ||
+        getHBSTemplatePath('base-component')
     const baseComponentTemplateString = readFile(baseComponentTemplateTarget)
     const renderContent = new Handlebars.SafeString(config.pseudo)
 
-    const handleHBSError = (error) => {
+    const handleHBSError = error => {
         mainWindow.webContents.send('compile-error', error)
         hasError = true
-    };
-    const appContent = handleHandleBarCompileReturnContent(baseComponentTemplateString, {
-        render: renderContent,
-        name: FileConstants.BASE_COMPONENT_NAME,
-        extension: FileConstants.EXTENSION,
-        imports: components.map(comp => ({
-            childName: comp.name,
-            componentDirName: config.hasSubfolder ? FileConstants.SUBFOLDER_NAME : null
-        }))
-    }, handleHBSError)
+    }
+    const appContent = handleHandleBarCompileReturnContent(
+        baseComponentTemplateString,
+        {
+            render: renderContent,
+            name: FileConstants.BASE_COMPONENT_NAME,
+            extension: FileConstants.EXTENSION,
+            imports: components.map(comp => ({
+                childName: comp.name,
+                componentDirName: config.hasSubfolder
+                    ? FileConstants.SUBFOLDER_NAME
+                    : null
+            }))
+        },
+        handleHBSError
+    )
 
     writeFile({
         directory: FileConstants.BUILD_PATH,
