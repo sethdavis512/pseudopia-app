@@ -91,6 +91,7 @@ I really want to make this app stand out.
 Here are a few things that I plan on working on:
 
 - ~~Toggleable subfolder~~
+- ~~Toggleable unit tests~~
 - Downloadable app
 - Custom Prettier config
 - Unit test toggle on/off
