@@ -1,6 +1,6 @@
 const { ipcRenderer } = require('electron')
 
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { render } from 'react-dom'
 
 import Button from './components/Button'
@@ -16,48 +16,54 @@ import useLocalStorage from './hooks/useLocalStorage'
 import './styles/App.scss'
 
 const App = () => {
-    // State
-    const [pseudo, setPseudo] = useLocalStorage(
-        'pseudo',
-        '<Layout>\n    <Header />\n    <Main />\n    <Footer />\n</Layout>'
-    )
-    const handleTextChange = text => setPseudo(text)
+    const [state, setState] = useLocalStorage('app', {
+        baseComponentName: 'App',
+        baseComponentTemplatePath: '',
+        buildPath: '',
+        componentTemplatePath: '',
+        fileExtension: 'tsx',
+        pseudo:
+            '<Layout>\n    <Header />\n    <Main />\n    <Footer />\n</Layout>',
+        subfolderName: 'components',
+        unitTestTemplatePath: ''
+    })
 
-    const [baseComponentName, setBaseComponentName] = useLocalStorage(
-        'baseComponentName',
-        'App'
-    )
-    const handleBaseComponentNameChange = event =>
-        setBaseComponentName(event.target.value)
-
-    const [subfolderName, setSubfolderName] = useLocalStorage(
-        'subfolderName',
-        'components'
-    )
-    const handleSubfolderNameChange = event =>
-        setSubfolderName(event.target.value)
-
-    const [fileExtension, setFileExtension] = useLocalStorage(
-        'fileExtension',
-        'tsx'
-    )
-    const handleFileExtensionClick = event =>
-        setFileExtension(event.target.value)
-
-    const [buildPath, setBuildPath] = useLocalStorage('buildPath', '')
-    const clearBuildPath = () => setBuildPath('')
-
-    const [
+    const {
+        baseComponentName,
         baseComponentTemplatePath,
-        setBaseComponentTemplatePath
-    ] = useLocalStorage('baseComponentTemplatePath', '')
-    const clearAppTemplatePath = () => setBaseComponentTemplatePath('')
+        buildPath,
+        componentTemplatePath,
+        fileExtension,
+        pseudo,
+        subfolderName,
+        unitTestTemplatePath
+    } = state
 
-    const [componentTemplatePath, setComponentTemplatePath] = useLocalStorage('componentTemplatePath', '')
-    const clearComponentTemplatePath = () => setComponentTemplatePath('')
+    const createHandleTextChange = targetKey => text => {
+        setState({
+            ...state,
+            [targetKey]: text
+        })
+    }
 
-    const [unitTestTemplatePath, setUnitTestTemplatePath] = useLocalStorage('unitTestTemplatePath', '')
-    const clearUnitTestTemplatePath = () => setUnitTestTemplatePath('')
+    const createHandleChange = targetKey => event => {
+        setState({
+            ...state,
+            [targetKey]: event.target.value
+        })
+    }
+
+    const createHandleClear = targetKey => () => {
+        setState({
+            ...state,
+            [targetKey]: ''
+        })
+    }
+
+    const createHandleDialogOpen = (setFn, isFile = false) => async () => {
+        const filePath = await ipcRenderer.invoke('open-file', isFile)
+        setFn(filePath)
+    }
 
     const [errorMessage, setErrorMessage] = useState('')
     const handleErrorMessage = error =>
@@ -68,13 +74,18 @@ const App = () => {
         setSuccessMessage('Successfully compiled!')
 
     useEffect(() => {
-        ipcRenderer.on('hbs-compile-error', (event, error) => {
+        ipcRenderer.on('compile-error', (event, error) => {
             handleErrorMessage(error)
         })
 
-        ipcRenderer.on('compile-success', (event, error) => {
+        ipcRenderer.on('compile-success', () => {
             handleSuccessMessage()
         })
+
+        return () => {
+            ipcRenderer.removeAllListeners('compile-success')
+            ipcRenderer.removeAllListeners('compile-error')
+        }
     }, [])
 
     useEffect(() => {
@@ -92,16 +103,10 @@ const App = () => {
         }
     }, [successMessage, errorMessage])
 
-    // Functionality
-    const createHandleDialogOpen = (setFn, isFile = false) => async () => {
-        const filePath = await ipcRenderer.invoke('open-file', isFile)
-        setFn(filePath)
-    }
-
     const handleBuild = () => {
         ipcRenderer.send('write-files', {
-            baseComponentTemplatePath,
             baseComponentName,
+            baseComponentTemplatePath,
             buildPath,
             componentTemplatePath,
             fileExtension,
@@ -116,7 +121,6 @@ const App = () => {
         handleBuild()
     }
 
-    // Render logic
     const disableBuildButton = !buildPath || !baseComponentName || !pseudo
 
     return (
@@ -129,13 +133,17 @@ const App = () => {
                     <form onSubmit={handleSubmit}>
                         <FormField label="Base Component Name">
                             <TextInput
-                                handleChange={handleBaseComponentNameChange}
+                                handleChange={createHandleChange(
+                                    'baseComponentName'
+                                )}
                                 value={baseComponentName}
                             />
                         </FormField>
                         <FormField label="Subfolder Name">
                             <TextInput
-                                handleChange={handleSubfolderNameChange}
+                                handleChange={createHandleChange(
+                                    'subfolderName'
+                                )}
                                 value={subfolderName}
                             />
                         </FormField>
@@ -147,7 +155,9 @@ const App = () => {
                                             ? 'is-selected'
                                             : 'is-outlined'
                                     }`}
-                                    handleClick={handleFileExtensionClick}
+                                    handleClick={createHandleChange(
+                                        'fileExtension'
+                                    )}
                                     value="tsx"
                                     text=".tsx"
                                 />
@@ -157,7 +167,9 @@ const App = () => {
                                             ? 'is-selected'
                                             : 'is-outlined'
                                     }`}
-                                    handleClick={handleFileExtensionClick}
+                                    handleClick={createHandleChange(
+                                        'fileExtension'
+                                    )}
                                     value="js"
                                     text=".js"
                                 />
@@ -170,8 +182,10 @@ const App = () => {
                                 </FormField>
                             )}
                             <PathButton
-                                clearFn={clearBuildPath}
-                                setFn={createHandleDialogOpen(setBuildPath)}
+                                clearFn={createHandleClear('buildPath')}
+                                setFn={createHandleDialogOpen(
+                                    createHandleTextChange('buildPath')
+                                )}
                                 text="Build Path"
                                 toggleCondition={buildPath}
                             />
@@ -187,9 +201,13 @@ const App = () => {
                                         </FormField>
                                     )}
                                     <PathButton
-                                        clearFn={clearAppTemplatePath}
+                                        clearFn={createHandleClear(
+                                            'baseComponentTemplatePath'
+                                        )}
                                         setFn={createHandleDialogOpen(
-                                            setBaseComponentTemplatePath,
+                                            createHandleTextChange(
+                                                'baseComponentTemplatePath'
+                                            ),
                                             true
                                         )}
                                         text="Base Component Path"
@@ -207,9 +225,13 @@ const App = () => {
                                         </FormField>
                                     )}
                                     <PathButton
-                                        clearFn={clearComponentTemplatePath}
+                                        clearFn={createHandleClear(
+                                            'componentTemplatePath'
+                                        )}
                                         setFn={createHandleDialogOpen(
-                                            setComponentTemplatePath,
+                                            createHandleTextChange(
+                                                'componentTemplatePath'
+                                            ),
                                             true
                                         )}
                                         text="Component Path"
@@ -225,9 +247,13 @@ const App = () => {
                                         </FormField>
                                     )}
                                     <PathButton
-                                        clearFn={clearUnitTestTemplatePath}
+                                        clearFn={createHandleClear(
+                                            'unitTestTemplatePath'
+                                        )}
                                         setFn={createHandleDialogOpen(
-                                            setUnitTestTemplatePath,
+                                            createHandleTextChange(
+                                                'unitTestTemplatePath'
+                                            ),
                                             true
                                         )}
                                         text="Unit Test Path"
@@ -251,7 +277,7 @@ const App = () => {
                     <FormField label="Pseudo Code">
                         <CodeEditor
                             id="pseudoCode"
-                            handleChange={handleTextChange}
+                            handleChange={createHandleTextChange('pseudo')}
                             value={pseudo}
                         />
                     </FormField>

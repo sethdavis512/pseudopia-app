@@ -105,7 +105,7 @@ ipcMain.on('write-files', (event, config) => {
     const renderContent = new Handlebars.SafeString(config.pseudo)
 
     const handleHBSError = (error) => {
-        mainWindow.webContents.send('hbs-compile-error', error)
+        mainWindow.webContents.send('compile-error', error)
         hasError = true
     };
     const appContent = handleHandleBarCompileReturnContent(baseComponentTemplateString, {
