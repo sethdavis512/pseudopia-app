@@ -323,7 +323,7 @@ const App = () => {
                             id="prettierConfigCode"
                             handleChange={createHandleTextChange('prettierConfig')}
                             value={prettierConfig}
-                            height="200px"
+                            height="250px"
                             mode="json"
                         />
                     </FormField>
