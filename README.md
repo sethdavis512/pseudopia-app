@@ -67,7 +67,7 @@ yarn dist
 
 Pseudopia can be customized to use your own `prettier` config.
 
-Default config:
+Default:
 ```
 {
     "arrowParens": "avoid"
@@ -118,8 +118,8 @@ Here are a few things that I plan on working on:
 
 - ~~Toggleable subfolder~~
 - ~~Toggleable unit tests~~
+- ~~Custom Prettier config~~
 - Downloadable app
-- Custom Prettier config
 - Clear previous files before build
 
 ## Contributing
