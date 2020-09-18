@@ -156,7 +156,7 @@ ipcMain.on('write-files', (event, config) => {
         directory: FileConstants.BUILD_PATH,
         fileName: FileConstants.BASE_COMPONENT_NAME,
         fileExtension: FileConstants.EXTENSION,
-        content: formatCode(appContent)
+        content: formatCode(appContent, config.prettierConfig)
     })
 
     // Write components
@@ -181,7 +181,7 @@ ipcMain.on('write-files', (event, config) => {
             directory: FileConstants.COMPONENT_PATH(config.hasSubfolder),
             fileName: component.name,
             fileExtension: FileConstants.EXTENSION,
-            content: formatCode(componentContent)
+            content: formatCode(componentContent, config.prettierConfig)
         })
 
         if (config.hasUnitTests) {
@@ -197,7 +197,7 @@ ipcMain.on('write-files', (event, config) => {
                 directory: FileConstants.UNIT_TEST_PATH(config.hasSubfolder),
                 fileName: `${component.name}.test`,
                 fileExtension: FileConstants.EXTENSION,
-                content: formatCode(unitTestContent)
+                content: formatCode(unitTestContent, config.prettierConfig)
             })
         }
     })
