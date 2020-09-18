@@ -25,8 +25,9 @@ function createMainWindow() {
         width: 1200,
         height: 800,
         webPreferences: {
-            nodeIntegration: true,
-        }
+            nodeIntegration: true
+        },
+        title: 'Pseudopia'
     })
 
     if (isDevelopment) {
@@ -134,7 +135,8 @@ ipcMain.on('write-files', (event, config) => {
             imports: components.reduce((uniqueImports, currentComponent) => {
                 const isUnique =
                     uniqueImports.findIndex(
-                        component => component.childName === currentComponent.name
+                        component =>
+                            component.childName === currentComponent.name
                     ) === -1
 
                 if (isUnique) {
