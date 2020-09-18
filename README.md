@@ -65,7 +65,7 @@ yarn dist
 
 ## Prettier Config
 
-Pseudopia can be customized to use your own config.
+Pseudopia can be customized to use your own `prettier` config.
 
 Default config:
 ```
