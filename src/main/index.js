@@ -1,82 +1,90 @@
-const path = require('path')
+'use strict'
+
 const { app, BrowserWindow, dialog, ipcMain } = require('electron')
+import * as path from 'path'
+import { format as formatUrl } from 'url'
 const {
     getASTData,
     getConstants,
     handleAST,
     handleHandleBarCompileReturnContent,
     writeFile,
-    readFile
+    readFile,
+    formatCode
 } = require('./utils/utilFunctions')
 const Handlebars = require('handlebars')
-const isDev = require('electron-is-dev')
 
-const getHBSTemplatePath = fileName =>
-    `${__dirname}/src/hbs-templates/${fileName}.hbs`
-const getImagePath = fileNameWithExt =>
-    `${__dirname}/src/images/${fileNameWithExt}`
+const isDevelopment = process.env.NODE_ENV !== 'production'
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) {
-    // eslint-disable-line global-require
-    app.quit()
-}
+// global reference to mainWindow (necessary to prevent window from being garbage collected)
+let mainWindow
 
-// Window
-let mainWindow = null
-
-const createWindow = () => {
-    mainWindow = mainWindow = new BrowserWindow({
+function createMainWindow() {
+    const window = new BrowserWindow({
+        fullscreenable: false,
         width: 1200,
         height: 800,
-        fullscreenable: false,
         webPreferences: {
-            nodeIntegration: true
-        },
-        icon: getImagePath('pseudopia-app-icon-256.ico')
+            nodeIntegration: true,
+        }
     })
 
-    // and load the index.html of the app.
-    mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
+    if (isDevelopment) {
+        window.webContents.openDevTools()
+    }
 
-    // Open the DevTools.
-    mainWindow.webContents.openDevTools()
+    if (isDevelopment) {
+        window.loadURL(
+            `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
+        )
+    } else {
+        window.loadURL(
+            formatUrl({
+                pathname: path.join(__dirname, 'index.html'),
+                protocol: 'file',
+                slashes: true
+            })
+        )
+    }
 
-    mainWindow.once('ready-to-show', () => {
-        mainWindow.show()
-    })
-
-    mainWindow.on('closed', () => {
+    window.on('closed', () => {
         mainWindow = null
     })
+
+    window.webContents.on('devtools-opened', () => {
+        window.focus()
+        setImmediate(() => {
+            window.focus()
+        })
+    })
+
+    return window
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', () => {
-    createWindow()
-})
-
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
+// quit application when all windows are closed
 app.on('window-all-closed', () => {
+    // on macOS it is common for applications to stay open until the user explicitly quits
     if (process.platform !== 'darwin') {
         app.quit()
     }
 })
 
 app.on('activate', () => {
-    // On OS X it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) {
-        createWindow()
+    // on macOS it is common to re-create a window even after all windows have been closed
+    if (mainWindow === null) {
+        mainWindow = createMainWindow()
     }
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+// create main BrowserWindow when electron is ready
+app.on('ready', () => {
+    mainWindow = createMainWindow()
+})
+
+// ========================
+
+const getHBSTemplatePath = fileName =>
+    `${__dirname}/hbs-templates/${fileName}.hbs`
 
 ipcMain.handle('open-file', async (event, isFile) => {
     const properties = isFile
@@ -123,12 +131,23 @@ ipcMain.on('write-files', (event, config) => {
             render: renderContent,
             name: FileConstants.BASE_COMPONENT_NAME,
             extension: FileConstants.EXTENSION,
-            imports: components.map(comp => ({
-                childName: comp.name,
-                componentDirName: config.hasSubfolder
-                    ? FileConstants.SUBFOLDER_NAME
-                    : null
-            }))
+            imports: components.reduce((uniqueImports, currentComponent) => {
+                const isUnique =
+                    uniqueImports.findIndex(
+                        component => component.childName === currentComponent.name
+                    ) === -1
+
+                if (isUnique) {
+                    uniqueImports.push({
+                        childName: currentComponent.name,
+                        componentDirName: config.hasSubfolder
+                            ? FileConstants.SUBFOLDER_NAME
+                            : null
+                    })
+                }
+
+                return uniqueImports
+            }, [])
         },
         handleHBSError
     )
@@ -137,7 +156,7 @@ ipcMain.on('write-files', (event, config) => {
         directory: FileConstants.BUILD_PATH,
         fileName: FileConstants.BASE_COMPONENT_NAME,
         fileExtension: FileConstants.EXTENSION,
-        content: appContent
+        content: formatCode(appContent)
     })
 
     // Write components
@@ -162,7 +181,7 @@ ipcMain.on('write-files', (event, config) => {
             directory: FileConstants.COMPONENT_PATH(config.hasSubfolder),
             fileName: component.name,
             fileExtension: FileConstants.EXTENSION,
-            content: componentContent
+            content: formatCode(componentContent)
         })
 
         if (config.hasUnitTests) {
@@ -178,7 +197,7 @@ ipcMain.on('write-files', (event, config) => {
                 directory: FileConstants.UNIT_TEST_PATH(config.hasSubfolder),
                 fileName: `${component.name}.test`,
                 fileExtension: FileConstants.EXTENSION,
-                content: unitTestContent
+                content: formatCode(unitTestContent)
             })
         }
     })

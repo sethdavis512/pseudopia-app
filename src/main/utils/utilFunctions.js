@@ -2,7 +2,7 @@ const fs = require('fs')
 const espree = require('espree')
 const rimraf = require('rimraf')
 const Handlebars = require('handlebars')
-// const prettier = require('prettier')
+const prettier = require('prettier')
 
 Handlebars.registerHelper('isTypescript', value => value === 'tsx')
 Handlebars.registerHelper('isTruthy', value => !!value);
@@ -74,15 +74,15 @@ exports.cleanUp = path => rimraf.sync(path, {}, err => console.log(err))
 
 const dirExists = path => fs.existsSync(path)
 
-// exports.formatCode = code => {
-//     return prettier.format(code, {
-//         singleQuote: true,
-//         parser: 'typescript',
-//         tabWidth: 4,
-//         trailingComma: 'none',
-//         semi: false
-//     })
-// }
+exports.formatCode = code => {
+    return prettier.format(code, {
+        singleQuote: true,
+        parser: 'typescript',
+        tabWidth: 4,
+        trailingComma: 'none',
+        semi: false
+    })
+}
 
 exports.readFile = filePath => fs.readFileSync(filePath, 'utf-8')
 
