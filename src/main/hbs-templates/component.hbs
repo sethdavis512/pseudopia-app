@@ -2,9 +2,9 @@ import React {{#if (isTypescript extension)}}, { ReactNode } {{/if}}from 'react'
 
 {{#if (isTypescript extension)}}
 interface {{ name }}Props {
-    children: ReactNode
+    children: ReactNode;
     {{#each props }}
-    {{ this }}: any
+    {{ this }}: any;
     {{/each}}
 }
 {{/if}}
