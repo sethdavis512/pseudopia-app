@@ -25,6 +25,14 @@ const App = () => {
         fileExtension: 'tsx',
         hasSubfolder: true,
         hasUnitTests: true,
+        prettierConfig: `{
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": false,
+    "trailingComma": "none",
+    "singleQuote": true,
+    "arrowParens": "avoid"
+}`,
         pseudo:
             '<Layout>\n    <Header />\n    <Main />\n    <Footer />\n</Layout>',
         subfolderName: 'components',
@@ -39,6 +47,7 @@ const App = () => {
         fileExtension,
         hasSubfolder,
         hasUnitTests,
+        prettierConfig,
         pseudo,
         subfolderName,
         unitTestTemplatePath
@@ -124,6 +133,7 @@ const App = () => {
             fileExtension,
             hasSubfolder,
             hasUnitTests,
+            prettierConfig,
             pseudo,
             subfolderName,
             unitTestTemplatePath
@@ -305,6 +315,16 @@ const App = () => {
                             id="pseudoCode"
                             handleChange={createHandleTextChange('pseudo')}
                             value={pseudo}
+                            height="400px"
+                        />
+                    </FormField>
+                    <FormField label="Prettier Config">
+                        <CodeEditor
+                            id="prettierConfigCode"
+                            handleChange={createHandleTextChange('prettierConfig')}
+                            value={prettierConfig}
+                            height="250px"
+                            mode="json"
                         />
                     </FormField>
                 </div>

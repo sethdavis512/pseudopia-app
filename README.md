@@ -6,13 +6,15 @@
 
 ## Features
 
-⚡️ Fast - Quickly build out your app ideas 
+⚡️ Fast - Quickly build out components for your app ideas 
 
 👍🏻 Easy - Templates are built-in, just write pseudo React - get components
 
 🦑 Flexible - Write starter components or deeply nested ones 
 
-🧩 Customizable - Create your own Handlebar templates for Pseudopia to use
+🧩 Customizable - Bring your own Handlebar templates for Pseudopia to use
+
+🎛 Do you like Prettier? You can customize that too!
 
 📺 [Watch a quick video](https://res.cloudinary.com/setholito/video/upload/v1600137138/pseudopia/pseudopia-intro-short.mp4)
 
@@ -51,11 +53,35 @@ Generates:
 
 ## Getting Started
 
+To develop:
 ```
-npm i && npm start
+yarn && yarn dev
 ```
 
-## Customization
+To build app:
+```
+yarn dist
+```
+
+## Prettier Config
+
+Pseudopia can be customized to use your own `prettier` config.
+
+Default:
+```
+{
+    "arrowParens": "avoid"
+    "semi": false,
+    "singleQuote": true,
+    "tabWidth": 4,
+    "trailingComma": "none",
+    "useTabs": false
+}
+```
+
+For further info on Prettier configs, [see here](https://prettier.io/docs/en/configuration.html).
+
+## Handlebar Templates
 
 Pseudopia allows you to use your own Handlebar templates.
 Currently, templates require at least one piece/key of data to be handed off to Handlebars.
@@ -92,9 +118,8 @@ Here are a few things that I plan on working on:
 
 - ~~Toggleable subfolder~~
 - ~~Toggleable unit tests~~
+- ~~Custom Prettier config~~
 - Downloadable app
-- Custom Prettier config
-- Unit test toggle on/off
 - Clear previous files before build
 
 ## Contributing

@@ -2,10 +2,10 @@ const fs = require('fs')
 const espree = require('espree')
 const rimraf = require('rimraf')
 const Handlebars = require('handlebars')
-// const prettier = require('prettier')
+const prettier = require('prettier')
 
 Handlebars.registerHelper('isTypescript', value => value === 'tsx')
-Handlebars.registerHelper('isTruthy', value => !!value);
+Handlebars.registerHelper('isTruthy', value => !!value)
 
 exports.getConstants = ({
     baseComponentName,
@@ -65,7 +65,7 @@ exports.getASTData = (data, errorCallback) => {
                 jsx: true
             }
         })
-    } catch(error) {
+    } catch (error) {
         errorCallback(error)
     }
 }
@@ -74,15 +74,25 @@ exports.cleanUp = path => rimraf.sync(path, {}, err => console.log(err))
 
 const dirExists = path => fs.existsSync(path)
 
-// exports.formatCode = code => {
-//     return prettier.format(code, {
-//         singleQuote: true,
-//         parser: 'typescript',
-//         tabWidth: 4,
-//         trailingComma: 'none',
-//         semi: false
-//     })
-// }
+const toJson = str => {
+    try {
+        return JSON.parse(str)
+    } catch (error) {
+        return undefined
+    }
+}
+
+exports.formatCode = (code, userConfig) => {
+    const config = toJson(userConfig) || {
+        singleQuote: true,
+        parser: 'typescript',
+        tabWidth: 4,
+        trailingComma: 'none',
+        semi: false
+    }
+
+    return prettier.format(code, config)
+}
 
 exports.readFile = filePath => fs.readFileSync(filePath, 'utf-8')
 
