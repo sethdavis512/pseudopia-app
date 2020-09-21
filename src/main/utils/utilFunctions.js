@@ -79,8 +79,14 @@ const toJson = str => {
     }
 }
 
-exports.formatCode = (code, userConfig) => {
-    const config = toJson(userConfig) || {
+exports.formatCode = (code, userConfigString) => {
+    const userConfig = toJson(userConfigString)
+
+    if (userConfig && userConfig.parser === undefined) {
+        userConfig.parser = 'typescript'
+    }
+
+    const config = userConfig || {
         singleQuote: true,
         parser: 'typescript',
         tabWidth: 4,
@@ -103,11 +109,7 @@ exports.writeFile = ({ directory, fileName, fileExtension, content }) => {
     fs.writeFileSync(`${directory}/${fileName}.${fileExtension}`, content)
 }
 
-exports.compileContent = (
-    template,
-    data,
-    errorCallback
-) => {
+exports.compileContent = (template, data, errorCallback) => {
     try {
         const compiled = Handlebars.compile(template, { strict: true })
         return compiled(data)
