@@ -4,9 +4,6 @@ const rimraf = require('rimraf')
 const Handlebars = require('handlebars')
 const prettier = require('prettier')
 
-Handlebars.registerHelper('isTypescript', value => value === 'tsx')
-Handlebars.registerHelper('isTruthy', value => !!value)
-
 exports.getConstants = ({
     baseComponentName,
     buildPath,
@@ -106,7 +103,7 @@ exports.writeFile = ({ directory, fileName, fileExtension, content }) => {
     fs.writeFileSync(`${directory}/${fileName}.${fileExtension}`, content)
 }
 
-exports.handleHandleBarCompileReturnContent = (
+exports.compileContent = (
     template,
     data,
     errorCallback

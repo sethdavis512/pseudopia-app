@@ -4,15 +4,17 @@ const { app, BrowserWindow, dialog, ipcMain } = require('electron')
 import * as path from 'path'
 import { format as formatUrl } from 'url'
 const {
+    compileContent,
+    formatCode,
     getASTData,
     getConstants,
     handleAST,
-    handleHandleBarCompileReturnContent,
-    writeFile,
     readFile,
-    formatCode
+    writeFile
 } = require('./utils/utilFunctions')
 const Handlebars = require('handlebars')
+
+Handlebars.registerHelper('isTypescript', value => value === 'tsx')
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -126,39 +128,43 @@ ipcMain.on('write-files', (event, config) => {
         mainWindow.webContents.send('compile-error', error)
         hasError = true
     }
-    const appContent = handleHandleBarCompileReturnContent(
+
+    const deDupedImports = components.reduce((uniqueImports, currentComponent) => {
+        const isUnique =
+            uniqueImports.findIndex(
+                component =>
+                    component.childName === currentComponent.name
+            ) === -1
+
+        if (isUnique) {
+            uniqueImports.push({
+                childName: currentComponent.name,
+                componentDirName: config.hasSubfolder
+                    ? FileConstants.SUBFOLDER_NAME
+                    : null
+            })
+        }
+
+        return uniqueImports
+    }, [])
+
+    const appContent = compileContent(
         baseComponentTemplateString,
         {
             render: renderContent,
             name: FileConstants.BASE_COMPONENT_NAME,
             extension: FileConstants.EXTENSION,
-            imports: components.reduce((uniqueImports, currentComponent) => {
-                const isUnique =
-                    uniqueImports.findIndex(
-                        component =>
-                            component.childName === currentComponent.name
-                    ) === -1
-
-                if (isUnique) {
-                    uniqueImports.push({
-                        childName: currentComponent.name,
-                        componentDirName: config.hasSubfolder
-                            ? FileConstants.SUBFOLDER_NAME
-                            : null
-                    })
-                }
-
-                return uniqueImports
-            }, [])
+            imports: deDupedImports
         },
         handleHBSError
     )
+    const prettyAppContent = formatCode(appContent, config.prettierConfig)
 
     writeFile({
         directory: FileConstants.BUILD_PATH,
         fileName: FileConstants.BASE_COMPONENT_NAME,
         fileExtension: FileConstants.EXTENSION,
-        content: formatCode(appContent, config.prettierConfig)
+        content: prettyAppContent
     })
 
     // Write components
@@ -171,35 +177,36 @@ ipcMain.on('write-files', (event, config) => {
     const unitTestTemplateString = readFile(unitTestTemplateTarget)
 
     components.forEach(component => {
-        const componentContent = handleHandleBarCompileReturnContent(
+        const componentContent = compileContent(
             componentTemplateString,
             {
                 extension: FileConstants.EXTENSION,
                 name: component.name,
                 props: component.props
-            }
+            },
+            handleHBSError
         )
+        const prettyComponentContent = formatCode(componentContent, config.prettierConfig)
+
         writeFile({
             directory: FileConstants.COMPONENT_PATH(config.hasSubfolder),
             fileName: component.name,
             fileExtension: FileConstants.EXTENSION,
-            content: formatCode(componentContent, config.prettierConfig)
+            content: prettyComponentContent
         })
 
         if (config.hasUnitTests) {
             // Write unit tests
-            const unitTestContent = handleHandleBarCompileReturnContent(
-                unitTestTemplateString,
-                {
-                    name: component.name
-                }
-            )
+            const unitTestContent = compileContent(unitTestTemplateString, {
+                name: component.name
+            })
+            const prettyUnitTestContent = formatCode(unitTestContent, config.prettierConfig)
 
             writeFile({
                 directory: FileConstants.UNIT_TEST_PATH(config.hasSubfolder),
                 fileName: `${component.name}.test`,
                 fileExtension: FileConstants.EXTENSION,
-                content: formatCode(unitTestContent, config.prettierConfig)
+                content: prettyUnitTestContent
             })
         }
     })
