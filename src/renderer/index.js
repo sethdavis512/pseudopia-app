@@ -16,16 +16,15 @@ import useLocalStorage from './hooks/useLocalStorage'
 import './styles/App.scss'
 import Checkbox from './components/Checkbox'
 
-const App = () => {
-    const [state, setState] = useLocalStorage('app', {
-        baseComponentName: 'App',
-        baseComponentTemplatePath: '',
-        buildPath: '',
-        componentTemplatePath: '',
-        fileExtension: 'tsx',
-        hasSubfolder: true,
-        hasUnitTests: true,
-        prettierConfig: `{
+const getInitialState = () => ({
+    baseComponentName: 'App',
+    baseComponentTemplatePath: '',
+    buildPath: '',
+    componentTemplatePath: '',
+    fileExtension: 'tsx',
+    hasSubfolder: true,
+    hasUnitTests: true,
+    prettierConfig: `{
     "tabWidth": 4,
     "useTabs": false,
     "semi": false,
@@ -33,11 +32,14 @@ const App = () => {
     "singleQuote": true,
     "arrowParens": "avoid"
 }`,
-        pseudo:
-            '<Layout>\n    <Header />\n    <Main />\n    <Footer />\n</Layout>',
-        subfolderName: 'components',
-        unitTestTemplatePath: ''
-    })
+    pseudo:
+        '<Layout>\n    <Header />\n    <Main />\n    <Footer />\n</Layout>',
+    subfolderName: 'components',
+    unitTestTemplatePath: ''
+})
+
+const App = () => {
+    const [state, setState] = useLocalStorage('app', getInitialState())
 
     const {
         baseComponentName,
@@ -78,6 +80,13 @@ const App = () => {
         setState({
             ...state,
             [targetKey]: !state[targetKey]
+        })
+    }
+
+    const createHandleReset = (targetKey, payload) => () => {
+        setState({
+            ...state,
+            [targetKey]: payload
         })
     }
 
@@ -296,6 +305,22 @@ const App = () => {
                                         toggleCondition={unitTestTemplatePath}
                                     />
                                 </FormField>
+                            </div>
+                        </FormField>
+                        <FormField label="Reset">
+                            <div className="buttons">
+                                <Button
+                                    fullwidth
+                                    className="is-primary is-outlined"
+                                    handleClick={createHandleReset('pseudo', getInitialState().pseudo)}
+                                    text="Reset Pseudo Code"
+                                />
+                                <Button
+                                    fullwidth
+                                    className="is-primary is-outlined"
+                                    handleClick={createHandleReset('prettierConfig', getInitialState().prettierConfig)}
+                                    text="Reset Prettier Config"
+                                />
                             </div>
                         </FormField>
                         <FormField label="Actions">
