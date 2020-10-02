@@ -97,8 +97,6 @@ exports.formatCode = (code, userConfigString) => {
     return prettier.format(code, config)
 }
 
-exports.readFile = filePath => fs.readFileSync(filePath, 'utf-8')
-
 exports.writeFile = ({ directory, fileName, fileExtension, content }) => {
     if (!fileName || !content) return
 

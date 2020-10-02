@@ -9,7 +9,6 @@ const {
     getASTData,
     getConstants,
     handleAST,
-    readFile,
     writeFile
 } = require('./utils/utilFunctions')
 const Handlebars = require('handlebars')
@@ -118,10 +117,6 @@ ipcMain.on('write-files', (event, config) => {
     const components = handleAST(AST.body)
 
     // Write base component ie App
-    const baseComponentTemplateTarget =
-        FileConstants.BASE_COMPONENT_TEMPLATE_PATH ||
-        getHBSTemplatePath('base-component')
-    const baseComponentTemplateString = readFile(baseComponentTemplateTarget)
     const renderContent = new Handlebars.SafeString(config.pseudo)
 
     const handleHBSError = error => {
@@ -129,27 +124,29 @@ ipcMain.on('write-files', (event, config) => {
         hasError = true
     }
 
-    const deDupedImports = components.reduce((uniqueImports, currentComponent) => {
-        const isUnique =
-            uniqueImports.findIndex(
-                component =>
-                    component.childName === currentComponent.name
-            ) === -1
+    const deDupedImports = components.reduce(
+        (uniqueImports, currentComponent) => {
+            const isUnique =
+                uniqueImports.findIndex(
+                    component => component.childName === currentComponent.name
+                ) === -1
 
-        if (isUnique) {
-            uniqueImports.push({
-                childName: currentComponent.name,
-                componentDirName: config.hasSubfolder
-                    ? FileConstants.SUBFOLDER_NAME
-                    : null
-            })
-        }
+            if (isUnique) {
+                uniqueImports.push({
+                    childName: currentComponent.name,
+                    componentDirName: config.hasSubfolder
+                        ? FileConstants.SUBFOLDER_NAME
+                        : null
+                })
+            }
 
-        return uniqueImports
-    }, [])
+            return uniqueImports
+        },
+        []
+    )
 
     const appContent = compileContent(
-        baseComponentTemplateString,
+        config.baseComponentTemplate,
         {
             render: renderContent,
             name: FileConstants.BASE_COMPONENT_NAME,
@@ -168,17 +165,9 @@ ipcMain.on('write-files', (event, config) => {
     })
 
     // Write components
-    const componentTemplateTarget =
-        FileConstants.COMPONENT_TEMPLATE_PATH || getHBSTemplatePath('component')
-    const componentTemplateString = readFile(componentTemplateTarget)
-
-    const unitTestTemplateTarget =
-        FileConstants.UNIT_TEST_TEMPLATE_PATH || getHBSTemplatePath('unit-test')
-    const unitTestTemplateString = readFile(unitTestTemplateTarget)
-
     components.forEach(component => {
         const componentContent = compileContent(
-            componentTemplateString,
+            config.componentTemplate,
             {
                 extension: FileConstants.EXTENSION,
                 name: component.name,
@@ -186,7 +175,10 @@ ipcMain.on('write-files', (event, config) => {
             },
             handleHBSError
         )
-        const prettyComponentContent = formatCode(componentContent, config.prettierConfig)
+        const prettyComponentContent = formatCode(
+            componentContent,
+            config.prettierConfig
+        )
 
         writeFile({
             directory: FileConstants.COMPONENT_PATH(config.hasSubfolder),
@@ -197,10 +189,13 @@ ipcMain.on('write-files', (event, config) => {
 
         if (config.hasUnitTests) {
             // Write unit tests
-            const unitTestContent = compileContent(unitTestTemplateString, {
+            const unitTestContent = compileContent(config.unitTestTemplate, {
                 name: component.name
             })
-            const prettyUnitTestContent = formatCode(unitTestContent, config.prettierConfig)
+            const prettyUnitTestContent = formatCode(
+                unitTestContent,
+                config.prettierConfig
+            )
 
             writeFile({
                 directory: FileConstants.UNIT_TEST_PATH(config.hasSubfolder),
