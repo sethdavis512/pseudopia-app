@@ -25,11 +25,6 @@ function createMainWindow() {
         fullscreenable: false,
         width: 1200,
         height: 800,
-        icon: path.join(
-            __dirname,
-            '../',
-            'renderer/images/pseudopia-icon-256x256.png'
-        ),
         webPreferences: {
             nodeIntegration: true
         },
@@ -87,16 +82,6 @@ app.on('activate', () => {
 app.on('ready', () => {
     mainWindow = createMainWindow()
 })
-
-if (process.platform === 'darwin') {
-    app.dock.setIcon(
-        path.join(
-            __dirname,
-            '../',
-            'renderer/images/pseudopia-icon-256x256.png'
-        )
-    )
-}
 
 app.setName('Pseudopia')
 
