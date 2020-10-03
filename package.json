@@ -40,6 +40,7 @@
         "appId": "com.electron.pseudopia",
         "productName": "Pseudopia",
         "dmg": {
+            "icon": "build/icon.icns",
             "iconSize": 100,
             "contents": [
                 {
@@ -54,7 +55,6 @@
                     "type": "file"
                 }
             ],
-            "icon": "build/icon.icns",
             "window": {
                 "width": 500,
                 "height": 500
