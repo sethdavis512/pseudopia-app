@@ -14,7 +14,7 @@
 
 🎛 Prettier Config: Format your code, just the way you like
 
-📺 [Watch a quick video](https://res.cloudinary.com/setholito/video/upload/v1600830474/pseudopia/pseudopia-video-v2.mp4)
+📺 [Watch a quick video](https://res.cloudinary.com/setholito/video/upload/v1601693540/pseudopia/pseudopia-video-v3.mp4)
 
 ## Example
 
