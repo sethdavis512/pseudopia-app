@@ -103,12 +103,12 @@ ipcMain.handle('open-file', async (event, isFile) => {
 
 ipcMain.on('write-files', (event, config) => {
     let hasError = false
-
-    const handleASTError = error => {
+    const handleError = error => {
         mainWindow.webContents.send('compile-error', error)
         hasError = true
     }
-    const AST = getASTData(config.pseudo, handleASTError)
+
+    const AST = getASTData(config.pseudo, handleError)
 
     if (!AST) return
 
@@ -117,11 +117,6 @@ ipcMain.on('write-files', (event, config) => {
 
     // Write base component
     const renderContent = new Handlebars.SafeString(config.pseudo)
-
-    const handleHBSError = error => {
-        mainWindow.webContents.send('compile-error', error)
-        hasError = true
-    }
 
     const deDupedImports = components.reduce(
         (uniqueImports, currentComponent) => {
@@ -152,11 +147,12 @@ ipcMain.on('write-files', (event, config) => {
             extension: FileConstants.EXTENSION,
             imports: deDupedImports
         },
-        handleHBSError
+        handleError
     )
     const prettyBaseComponentContent = formatCode(
         baseComponentContent,
-        config.prettierConfig
+        config.prettierConfig,
+        handleError
     )
 
     writeFile({
@@ -175,11 +171,12 @@ ipcMain.on('write-files', (event, config) => {
                 name: component.name,
                 props: component.props
             },
-            handleHBSError
+            handleError
         )
         const prettyComponentContent = formatCode(
             componentContent,
-            config.prettierConfig
+            config.prettierConfig,
+            handleError
         )
 
         writeFile({
@@ -196,7 +193,8 @@ ipcMain.on('write-files', (event, config) => {
             })
             const prettyUnitTestContent = formatCode(
                 unitTestContent,
-                config.prettierConfig
+                config.prettierConfig,
+                handleError
             )
 
             writeFile({

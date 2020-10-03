@@ -69,7 +69,7 @@ const toJson = str => {
     }
 }
 
-exports.formatCode = (code, userConfigString) => {
+exports.formatCode = (code, userConfigString, errorCallback) => {
     const userConfig = toJson(userConfigString)
 
     if (userConfig && userConfig.parser === undefined) {
@@ -84,7 +84,11 @@ exports.formatCode = (code, userConfigString) => {
         semi: false
     }
 
-    return prettier.format(code, config)
+    try {
+        return prettier.format(code, config)
+    } catch(e) {
+        errorCallback(e)
+    }
 }
 
 exports.writeFile = ({ directory, fileName, fileExtension, content }) => {
