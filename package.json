@@ -37,22 +37,25 @@
         "generator"
     ],
     "build": {
-        "appId": "pseudopia",
+        "appId": "com.electron.pseudopia",
+        "productName": "Pseudopia",
         "dmg": {
             "background": "build/background.png",
-            "icon": "build/icon.icns",
+            "iconSize": 100,
             "contents": [
                 {
-                    "x": 110,
-                    "y": 150
-                },
-                {
-                    "x": 240,
-                    "y": 150,
+                    "x": 380,
+                    "y": 280,
                     "type": "link",
                     "path": "/Applications"
+                },
+                {
+                    "x": 110,
+                    "y": 280,
+                    "type": "file"
                 }
-            ]
+            ],
+            "icon": "build/icon.icns"
         }
     }
 }
