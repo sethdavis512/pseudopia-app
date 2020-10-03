@@ -1,0 +1,21 @@
+{
+    "name": "tailwind-css-example",
+    "version": "0.0.1",
+    "description": "Tailwind CSS Example",
+    "scripts": {
+        "start": "gulp"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "browser-sync": "^2.26.12",
+        "bytes": "^3.1.0",
+        "gulp": "^4.0.2",
+        "gulp-clean-css": "^4.3.0",
+        "gulp-postcss": "^9.0.0",
+        "gulp-purgecss": "^3.0.0",
+        "gulp-rename": "^2.0.0",
+        "tailwindcss": "^1.8.10"
+    }
+}
