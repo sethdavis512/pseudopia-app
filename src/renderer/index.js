@@ -70,6 +70,13 @@ const App = () => {
         })
     }
 
+    const createHandleReset = (targetKey, resetData) => () => {
+        setState({
+            ...state,
+            [targetKey]: resetData
+        })
+    }
+
     const createHandleDialogOpen = (setFn, isFile = false) => async () => {
         const filePath = await ipcRenderer.invoke('open-file', isFile)
         setFn(filePath)
@@ -116,15 +123,15 @@ const App = () => {
     const handleBuild = () => {
         ipcRenderer.send('write-files', {
             baseComponentName,
+            baseComponentTemplate,
             buildPath,
+            componentTemplate,
             fileExtension,
             hasSubfolder,
             hasUnitTests,
             prettierConfig,
             pseudo,
             subfolderName,
-            baseComponentTemplate,
-            componentTemplate,
             unitTestTemplate
         })
     }
@@ -134,23 +141,26 @@ const App = () => {
         handleBuild()
     }
 
-    const disableBuildButton =
-        !buildPath || !baseComponentName || !pseudo || !subfolderName
+    const handleTemplateReset = createHandleReset(
+        currentTemplateName,
+        getInitialState()[currentTemplateName]
+    )
+
+    const fileExtensionHandleChange = createHandleChange('fileExtension')
 
     const pseudoTabCurrent = currentTab === TabStates.PSEUDO
     const prettierTabCurrent = currentTab === TabStates.PRETTIER
     const templateTabCurrent = currentTab === TabStates.TEMPLATES
 
-    const fileExtensionHandleChange = createHandleChange('fileExtension')
-
     const tsxRadioSelected = fileExtension === 'tsx'
-    const tsxRadioClassName = tsxRadioSelected ? 'is-selected' : 'is-outlined'
-
     const jsRadioSelected = fileExtension === 'js'
-    const jsRadioClassName = jsRadioSelected ? 'is-selected' : 'is-outlined'
-
     const jsxRadioSelected = fileExtension === 'jsx'
-    const jsxRadioClassName = jsxRadioSelected ? 'is-selected' : 'is-outlined'
+
+    const swapRadioClassName = isSelected =>
+        isSelected ? 'is-selected' : 'is-outlined'
+
+    const disableBuildButton =
+        !buildPath || !baseComponentName || !pseudo || !subfolderName
 
     return (
         <div className="wrapper">
@@ -165,7 +175,7 @@ const App = () => {
                             id={TabStates.PSEUDO}
                             isCurrent={pseudoTabCurrent}
                         >
-                            Psuedo
+                            Pseudo
                         </Tab>
                         <Tab
                             handleClick={createHandleTabChange('currentTab')}
@@ -186,7 +196,6 @@ const App = () => {
                         <FormField label="Pseudo Code (Required)">
                             <CodeEditor
                                 mode="javascript"
-                                height="500px"
                                 handleChange={createHandleTextChange('pseudo')}
                                 id="pseudoCode"
                                 value={pseudo}
@@ -197,7 +206,6 @@ const App = () => {
                         <FormField label="Prettier Config">
                             <CodeEditor
                                 mode="json"
-                                height="500px"
                                 handleChange={createHandleTextChange(
                                     'prettierConfig'
                                 )}
@@ -209,22 +217,27 @@ const App = () => {
                     </TabContent>
                     <TabContent show={templateTabCurrent}>
                         <FormField label="Choose Template">
-                            <Select
-                                handleChange={createHandleChange(
-                                    'currentTemplateName'
-                                )}
-                                value={currentTemplateName}
-                                style={{ marginBottom: '1rem' }}
-                            >
-                                {TemplateOptions.map(option => (
-                                    <SelectOption value={option.value}>
-                                        {option.label}
-                                    </SelectOption>
-                                ))}
-                            </Select>
+                            <div className="space-between">
+                                <Select
+                                    handleChange={createHandleChange(
+                                        'currentTemplateName'
+                                    )}
+                                    style={{ marginBottom: '1rem' }}
+                                    value={currentTemplateName}
+                                >
+                                    {TemplateOptions.map(option => (
+                                        <SelectOption value={option.value}>
+                                            {option.label}
+                                        </SelectOption>
+                                    ))}
+                                </Select>
+                                <Button
+                                    handleClick={handleTemplateReset}
+                                    text="Reset Template"
+                                />
+                            </div>
                         </FormField>
                         <CodeEditor
-                            height="500px"
                             handleChange={createHandleTextChange(
                                 currentTemplateName
                             )}
@@ -277,7 +290,7 @@ const App = () => {
                         <FormField label="File Type">
                             <Radio
                                 checked={tsxRadioSelected}
-                                className={tsxRadioClassName}
+                                className={swapRadioClassName(tsxRadioSelected)}
                                 handleChange={fileExtensionHandleChange}
                                 id="tsxExtension"
                                 label=".tsx"
@@ -286,7 +299,7 @@ const App = () => {
                             />
                             <Radio
                                 checked={jsRadioSelected}
-                                className={jsRadioClassName}
+                                className={swapRadioClassName(jsRadioSelected)}
                                 handleChange={fileExtensionHandleChange}
                                 id="jsExtension"
                                 label=".js"
@@ -295,7 +308,7 @@ const App = () => {
                             />
                             <Radio
                                 checked={jsxRadioSelected}
-                                className={jsxRadioClassName}
+                                className={swapRadioClassName(jsxRadioSelected)}
                                 handleChange={fileExtensionHandleChange}
                                 id="jsxExtension"
                                 label=".jsx"

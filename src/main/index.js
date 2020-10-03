@@ -85,9 +85,6 @@ app.on('ready', () => {
 
 // ========================
 
-const getHBSTemplatePath = fileName =>
-    `${__dirname}/hbs-templates/${fileName}.hbs`
-
 ipcMain.handle('open-file', async (event, isFile) => {
     const properties = isFile
         ? ['openFile']
@@ -116,7 +113,7 @@ ipcMain.on('write-files', (event, config) => {
     const FileConstants = getConstants(config)
     const components = handleAST(AST.body)
 
-    // Write base component ie App
+    // Write base component
     const renderContent = new Handlebars.SafeString(config.pseudo)
 
     const handleHBSError = error => {
@@ -145,7 +142,7 @@ ipcMain.on('write-files', (event, config) => {
         []
     )
 
-    const appContent = compileContent(
+    const baseComponentContent = compileContent(
         config.baseComponentTemplate,
         {
             render: renderContent,
@@ -155,13 +152,16 @@ ipcMain.on('write-files', (event, config) => {
         },
         handleHBSError
     )
-    const prettyAppContent = formatCode(appContent, config.prettierConfig)
+    const prettyBaseComponentContent = formatCode(
+        baseComponentContent,
+        config.prettierConfig
+    )
 
     writeFile({
         directory: FileConstants.BUILD_PATH,
         fileName: FileConstants.BASE_COMPONENT_NAME,
         fileExtension: FileConstants.EXTENSION,
-        content: prettyAppContent
+        content: prettyBaseComponentContent
     })
 
     // Write components

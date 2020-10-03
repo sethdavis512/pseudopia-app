@@ -133,6 +133,11 @@ label.checkbox {
     }
 }
 
+.space-between {
+    display: flex;
+    justify-content: space-between;
+}
+
 // Overrides
 .pseudopia {
     &-field {

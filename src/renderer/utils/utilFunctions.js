@@ -1,18 +1,17 @@
 import {
-    TabStates,
-    TemplateNames,
     baseComponentTemplate,
     componentTemplate,
-    unitTestTemplate,
-    prettierConfig
+    prettierConfig,
+    TabStates,
+    TemplateNames,
+    unitTestTemplate
 } from '../constants'
 
 export const getInitialState = () => ({
-    baseComponentTemplate,
-    componentTemplate,
-    unitTestTemplate,
     baseComponentName: 'App',
+    baseComponentTemplate,
     buildPath: '',
+    componentTemplate,
     currentTab: TabStates.PSEUDO,
     currentTemplateName: TemplateNames.BASE_COMPONENT,
     fileExtension: 'tsx',
@@ -20,5 +19,6 @@ export const getInitialState = () => ({
     hasUnitTests: true,
     prettierConfig,
     pseudo: '<Layout>\n    <Header />\n    <Main />\n    <Footer />\n</Layout>',
-    subfolderName: 'components'
+    subfolderName: 'components',
+    unitTestTemplate,
 })

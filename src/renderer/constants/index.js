@@ -18,32 +18,32 @@ export const TemplateOptions = [
 
 export const baseComponentTemplate = `import React from 'react'
 
-{{#each imports }}
-import {{ childName }} from './{{#if componentDirName}}{{ componentDirName }}/{{/if}}{{ childName }}'
+{{#each imports}}
+import {{childName}} from './{{#if componentDirName}}{{componentDirName}}/{{/if}}{{childName}}'
 {{/each}}
 
-const {{ name }}{{#if (isTypescript extension)}}: React.FC{{/if}} = () => {
-    return ({{ render }})
+const {{name}}{{#if (isTypescript extension)}}: React.FC{{/if}} = () => {
+    return ({{render}})
 }
 
-export default {{ name }}
+export default {{name}}
 `
 
 export const componentTemplate = `import React {{#if (isTypescript extension)}}, { ReactNode } {{/if}}from 'react'
 
 {{#if (isTypescript extension)}}
-interface {{ name }}Props {
+interface {{name}}Props {
     children: ReactNode;
-    {{#each props }}
-    {{ this }}: any;
+    {{#each props}}
+    {{this}}: any;
     {{/each}}
 }
 {{/if}}
 
 const {{name}}
-{{#if (isTypescript extension)}}: React.FC<{{ name }}Props>{{/if}}
+{{#if (isTypescript extension)}}: React.FC<{{name}}Props>{{/if}}
 = ({ children,
-{{#if props}}{{#each props }}{{ this }},{{/each}}{{/if}}
+{{#if props}}{{#each props}}{{this}},{{/each}}{{/if}}
 }) => {
     return (
         <div>{children}</div>
