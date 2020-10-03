@@ -1,17 +1,13 @@
 const fs = require('fs')
 const espree = require('espree')
-const rimraf = require('rimraf')
 const Handlebars = require('handlebars')
 const prettier = require('prettier')
 
 exports.getConstants = ({
     baseComponentName,
     buildPath,
-    baseComponentTemplatePath,
-    componentTemplatePath,
-    unitTestTemplatePath,
-    subfolderName,
-    fileExtension
+    fileExtension,
+    subfolderName
 }) => {
     return {
         // Paths
@@ -22,13 +18,9 @@ exports.getConstants = ({
             hasSubfolder
                 ? `${buildPath}/${subfolderName}/__test__`
                 : `${buildPath}/__test__`,
-        // Templates
-        BASE_COMPONENT_TEMPLATE_PATH: baseComponentTemplatePath,
-        COMPONENT_TEMPLATE_PATH: componentTemplatePath,
-        UNIT_TEST_TEMPLATE_PATH: unitTestTemplatePath,
         // Aux
         BASE_COMPONENT_NAME: baseComponentName,
-        EXTENSION: fileExtension || 'tsx',
+        EXTENSION: fileExtension,
         JSX_ELEMENT: 'JSXElement',
         SUBFOLDER_NAME: subfolderName
     }
@@ -67,8 +59,6 @@ exports.getASTData = (data, errorCallback) => {
     }
 }
 
-exports.cleanUp = path => rimraf.sync(path, {}, err => console.log(err))
-
 const dirExists = path => fs.existsSync(path)
 
 const toJson = str => {
@@ -96,8 +86,6 @@ exports.formatCode = (code, userConfigString) => {
 
     return prettier.format(code, config)
 }
-
-exports.readFile = filePath => fs.readFileSync(filePath, 'utf-8')
 
 exports.writeFile = ({ directory, fileName, fileExtension, content }) => {
     if (!fileName || !content) return

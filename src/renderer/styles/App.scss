@@ -2,24 +2,46 @@
 @import url('https://fonts.googleapis.com/css?family=Noto+Sans:400,700');
 
 $green: #7fff00;
-$black: #315414;
-$grey-dark: #2d2d2d;
+$green-light: lighten($green, 20%);
+$green-dark: darken($green, 20%);
+
 $grey: grey;
+$grey-dark: #2d2d2d;
+
 $white: #f2f2f2;
 
 $primary: $green;
+$primary-dark: darken($primary, 20%);
+$primary-light: lighten($primary, 20%);
 
-$border: $primary;
+$border: $primary-dark;
+$button-color: $primary;
+$button-background-color: $grey-dark;
+$button-border-color: $primary-dark;
+$button-active-border-color: $primary-light;
+$button-focus-border-color: $primary-light;
+$button-hover-border-color: $primary-light;
+$button-active-color: $primary-light;
+$button-focus-color: $primary-light;
+$button-hover-color: $primary-light;
+$button-disabled-background-color: $grey-dark;
 
 $title-color: $primary;
 $label-color: $primary;
+
+$input-background-color: $grey-dark;
+$input-border-color: $primary-dark;
 $input-color: $primary;
-$input-border-color: darken($primary, 25%);
-$input-focus-border-color: $primary;
-$input-hover-border-color: lighten($primary, 25%);
+$input-focus-border-color: $primary-light;
+$input-hover-border-color: $primary-light;
+
+$tabs-boxed-link-active-background-color: $grey-dark;
+$tabs-boxed-link-hover-background-color: transparent;
+$tabs-link-active-color: $primary;
+$tabs-link-color: $primary-dark;
+$tabs-link-hover-color: $primary-light;
 
 $body-background-color: $grey-dark;
-$input-background-color: $grey-dark;
 $pre-background: $grey-dark;
 $box-background-color: $grey-dark;
 
@@ -29,15 +51,29 @@ $pre: white;
 $pre-font-size: 1rem;
 $pre-padding: 1rem;
 
-$pseudopia-border: 1px solid $primary;
+$pseudopia-border: 1px solid $primary-dark;
 
-pre {
-    border: $pseudopia-border;
-    border-radius: 8px;
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: $grey-dark;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: $grey;
+    border-radius: 20px;
+    border: 3px solid $grey-dark;
 }
 
 ::selection {
     background: rgba($primary, 0.2);
+}
+
+pre {
+    border: $pseudopia-border;
+    border-radius: 8px;
 }
 
 label.radio {
@@ -53,16 +89,23 @@ label.radio {
     border: $pseudopia-border;
 }
 
+.button {
+    &.is-selected {
+        border-color: $primary-light;
+        background-color: $primary-dark;
+    }
+}
+
+.logo {
+    fill: $primary;
+}
+
 .logo-container {
     max-width: 400px;
+    margin-bottom: 1rem;
 }
 
-#code-editor {
-    height: 0;
-    padding-bottom: 100%;
-}
-
-.app {
+.wrapper {
     padding: 1rem;
     position: relative;
 }
@@ -79,7 +122,6 @@ label.checkbox {
     border: $pseudopia-border;
     padding: 1rem;
     border-radius: 4px;
-    margin-bottom: 1rem;
     margin-right: 0.5rem;
 
     input {
@@ -91,10 +133,58 @@ label.checkbox {
     }
 }
 
-@media only screen and (max-width: 768px) {
-    .reverse-columns {
-        display: flex;
-        flex-direction: column-reverse;
+.space-between {
+    display: flex;
+    justify-content: space-between;
+}
+
+// Overrides
+.pseudopia {
+    &-field {
+        &.field {
+            &:not(:last-child) {
+                margin-bottom: 1.5rem;
+            }
+        }
+    }
+
+    &-select {
+        &.select {
+            &:not(.is-multiple):not(.is-loading){
+                &::after {
+                    border-color: $primary;
+                }
+            }
+    
+            &:hover {
+                &:not(.is-multiple):not(.is-loading){
+                    &::after {
+                        border-color: $primary;
+                    }
+                }
+            }
+        }
+    }
+
+    &-switch {
+        &.switch[type="checkbox"] + label {
+            color: $primary;
+        }
+
+        &.switch[type="checkbox"] + label::before,
+        &.switch[type="checkbox"] + label:before {
+            background-color: $grey;
+        }
+
+        &.switch[type="checkbox"]:checked + label::before,
+        &.switch[type="checkbox"]:checked + label:before {
+            background-color: $primary-dark;
+        }
+    }
+
+    &-radio {
+        color: $primary;
+        margin-right: 8px;
     }
 }
 
@@ -106,3 +196,6 @@ label.checkbox {
 @import '../../../node_modules/bulma/sass/elements/title.sass';
 @import '../../../node_modules/bulma/sass/elements/notification.sass';
 @import '../../../node_modules/bulma/sass/form/_all.sass';
+@import '../../../node_modules/bulma/sass/components/tabs.sass';
+@import '../../../node_modules/bulma-switch/dist/css/bulma-switch.sass';
+@import '../../../node_modules/bulma-checkradio/dist/css/bulma-checkradio.sass';

@@ -9,7 +9,7 @@ const Button = ({
     ...rest
 }) => (
     <button
-        className={`button ${className} ${fullwidth && 'is-fullwidth'}`}
+        className={`button is-outlined ${className} ${fullwidth ? 'is-fullwidth' : ''}`}
         onClick={handleClick}
         type={type}
         {...rest}

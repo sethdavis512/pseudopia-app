@@ -9,7 +9,6 @@ const {
     getASTData,
     getConstants,
     handleAST,
-    readFile,
     writeFile
 } = require('./utils/utilFunctions')
 const Handlebars = require('handlebars')
@@ -86,9 +85,6 @@ app.on('ready', () => {
 
 // ========================
 
-const getHBSTemplatePath = fileName =>
-    `${__dirname}/hbs-templates/${fileName}.hbs`
-
 ipcMain.handle('open-file', async (event, isFile) => {
     const properties = isFile
         ? ['openFile']
@@ -117,11 +113,7 @@ ipcMain.on('write-files', (event, config) => {
     const FileConstants = getConstants(config)
     const components = handleAST(AST.body)
 
-    // Write base component ie App
-    const baseComponentTemplateTarget =
-        FileConstants.BASE_COMPONENT_TEMPLATE_PATH ||
-        getHBSTemplatePath('base-component')
-    const baseComponentTemplateString = readFile(baseComponentTemplateTarget)
+    // Write base component
     const renderContent = new Handlebars.SafeString(config.pseudo)
 
     const handleHBSError = error => {
@@ -129,27 +121,29 @@ ipcMain.on('write-files', (event, config) => {
         hasError = true
     }
 
-    const deDupedImports = components.reduce((uniqueImports, currentComponent) => {
-        const isUnique =
-            uniqueImports.findIndex(
-                component =>
-                    component.childName === currentComponent.name
-            ) === -1
+    const deDupedImports = components.reduce(
+        (uniqueImports, currentComponent) => {
+            const isUnique =
+                uniqueImports.findIndex(
+                    component => component.childName === currentComponent.name
+                ) === -1
 
-        if (isUnique) {
-            uniqueImports.push({
-                childName: currentComponent.name,
-                componentDirName: config.hasSubfolder
-                    ? FileConstants.SUBFOLDER_NAME
-                    : null
-            })
-        }
+            if (isUnique) {
+                uniqueImports.push({
+                    childName: currentComponent.name,
+                    componentDirName: config.hasSubfolder
+                        ? FileConstants.SUBFOLDER_NAME
+                        : null
+                })
+            }
 
-        return uniqueImports
-    }, [])
+            return uniqueImports
+        },
+        []
+    )
 
-    const appContent = compileContent(
-        baseComponentTemplateString,
+    const baseComponentContent = compileContent(
+        config.baseComponentTemplate,
         {
             render: renderContent,
             name: FileConstants.BASE_COMPONENT_NAME,
@@ -158,27 +152,22 @@ ipcMain.on('write-files', (event, config) => {
         },
         handleHBSError
     )
-    const prettyAppContent = formatCode(appContent, config.prettierConfig)
+    const prettyBaseComponentContent = formatCode(
+        baseComponentContent,
+        config.prettierConfig
+    )
 
     writeFile({
         directory: FileConstants.BUILD_PATH,
         fileName: FileConstants.BASE_COMPONENT_NAME,
         fileExtension: FileConstants.EXTENSION,
-        content: prettyAppContent
+        content: prettyBaseComponentContent
     })
 
     // Write components
-    const componentTemplateTarget =
-        FileConstants.COMPONENT_TEMPLATE_PATH || getHBSTemplatePath('component')
-    const componentTemplateString = readFile(componentTemplateTarget)
-
-    const unitTestTemplateTarget =
-        FileConstants.UNIT_TEST_TEMPLATE_PATH || getHBSTemplatePath('unit-test')
-    const unitTestTemplateString = readFile(unitTestTemplateTarget)
-
     components.forEach(component => {
         const componentContent = compileContent(
-            componentTemplateString,
+            config.componentTemplate,
             {
                 extension: FileConstants.EXTENSION,
                 name: component.name,
@@ -186,7 +175,10 @@ ipcMain.on('write-files', (event, config) => {
             },
             handleHBSError
         )
-        const prettyComponentContent = formatCode(componentContent, config.prettierConfig)
+        const prettyComponentContent = formatCode(
+            componentContent,
+            config.prettierConfig
+        )
 
         writeFile({
             directory: FileConstants.COMPONENT_PATH(config.hasSubfolder),
@@ -197,10 +189,13 @@ ipcMain.on('write-files', (event, config) => {
 
         if (config.hasUnitTests) {
             // Write unit tests
-            const unitTestContent = compileContent(unitTestTemplateString, {
+            const unitTestContent = compileContent(config.unitTestTemplate, {
                 name: component.name
             })
-            const prettyUnitTestContent = formatCode(unitTestContent, config.prettierConfig)
+            const prettyUnitTestContent = formatCode(
+                unitTestContent,
+                config.prettierConfig
+            )
 
             writeFile({
                 directory: FileConstants.UNIT_TEST_PATH(config.hasSubfolder),

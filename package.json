@@ -11,6 +11,8 @@
     "dependencies": {
         "ace-builds": "^1.4.12",
         "bulma": "^0.9.0",
+        "bulma-checkradio": "^1.1.1",
+        "bulma-switch": "^2.0.0",
         "espree": "^7.3.0",
         "handlebars": "^4.7.6",
         "prettier": "^2.1.2",

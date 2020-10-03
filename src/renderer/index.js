@@ -9,50 +9,37 @@ import CodeEditor from './components/CodeEditor'
 import FormField from './components/FormField'
 import Logo from './components/Logo'
 import Notification from './components/Notification'
-import PathButton from './components/PathButton'
 import TextInput from './components/TextInput'
 import useLocalStorage from './hooks/useLocalStorage'
+import Checkbox from './components/Checkbox'
+import Tabs from './components/Tabs'
+import Tab from './components/Tab'
+import TabContent from './components/TabContent'
+import Select from './components/Select'
+import SelectOption from './components/SelectOption'
+import Radio from './components/Radio'
+
+import { TabStates, TemplateOptions } from './constants'
+import { getInitialState } from './utils/utilFunctions'
 
 import './styles/App.scss'
-import Checkbox from './components/Checkbox'
-
-const getInitialState = () => ({
-    baseComponentName: 'App',
-    baseComponentTemplatePath: '',
-    buildPath: '',
-    componentTemplatePath: '',
-    fileExtension: 'tsx',
-    hasSubfolder: true,
-    hasUnitTests: true,
-    prettierConfig: `{
-    "tabWidth": 4,
-    "useTabs": false,
-    "semi": false,
-    "trailingComma": "none",
-    "singleQuote": true,
-    "arrowParens": "avoid"
-}`,
-    pseudo:
-        '<Layout>\n    <Header />\n    <Main />\n    <Footer />\n</Layout>',
-    subfolderName: 'components',
-    unitTestTemplatePath: ''
-})
 
 const App = () => {
     const [state, setState] = useLocalStorage('app', getInitialState())
-
     const {
         baseComponentName,
-        baseComponentTemplatePath,
         buildPath,
-        componentTemplatePath,
+        baseComponentTemplate,
+        componentTemplate,
+        currentTab,
+        currentTemplateName,
         fileExtension,
         hasSubfolder,
         hasUnitTests,
         prettierConfig,
         pseudo,
         subfolderName,
-        unitTestTemplatePath
+        unitTestTemplate
     } = state
 
     const createHandleTextChange = targetKey => text => {
@@ -69,10 +56,10 @@ const App = () => {
         })
     }
 
-    const createHandleClear = targetKey => () => {
+    const createHandleTabChange = targetKey => event => {
         setState({
             ...state,
-            [targetKey]: ''
+            [targetKey]: event.currentTarget.id
         })
     }
 
@@ -83,10 +70,10 @@ const App = () => {
         })
     }
 
-    const createHandleReset = (targetKey, payload) => () => {
+    const createHandleReset = (targetKey, resetData) => () => {
         setState({
             ...state,
-            [targetKey]: payload
+            [targetKey]: resetData
         })
     }
 
@@ -136,16 +123,16 @@ const App = () => {
     const handleBuild = () => {
         ipcRenderer.send('write-files', {
             baseComponentName,
-            baseComponentTemplatePath,
+            baseComponentTemplate,
             buildPath,
-            componentTemplatePath,
+            componentTemplate,
             fileExtension,
             hasSubfolder,
             hasUnitTests,
             prettierConfig,
             pseudo,
             subfolderName,
-            unitTestTemplatePath
+            unitTestTemplate
         })
     }
 
@@ -154,17 +141,115 @@ const App = () => {
         handleBuild()
     }
 
-    const disableBuildButton = !buildPath || !baseComponentName || !pseudo
+    const handleTemplateReset = createHandleReset(
+        currentTemplateName,
+        getInitialState()[currentTemplateName]
+    )
+
+    const fileExtensionHandleChange = createHandleChange('fileExtension')
+
+    const pseudoTabCurrent = currentTab === TabStates.PSEUDO
+    const prettierTabCurrent = currentTab === TabStates.PRETTIER
+    const templateTabCurrent = currentTab === TabStates.TEMPLATES
+
+    const tsxRadioSelected = fileExtension === 'tsx'
+    const jsRadioSelected = fileExtension === 'js'
+    const jsxRadioSelected = fileExtension === 'jsx'
+
+    const swapRadioClassName = isSelected =>
+        isSelected ? 'is-selected' : 'is-outlined'
+
+    const disableBuildButton =
+        !buildPath || !baseComponentName || !pseudo || !subfolderName
 
     return (
-        <div className="app">
+        <div className="wrapper">
             <div className="logo-container">
                 <Logo />
             </div>
-            <div className="columns reverse-columns">
+            <div className="columns">
+                <div className="column is-8">
+                    <Tabs>
+                        <Tab
+                            handleClick={createHandleTabChange('currentTab')}
+                            id={TabStates.PSEUDO}
+                            isCurrent={pseudoTabCurrent}
+                        >
+                            Pseudo
+                        </Tab>
+                        <Tab
+                            handleClick={createHandleTabChange('currentTab')}
+                            id={TabStates.PRETTIER}
+                            isCurrent={prettierTabCurrent}
+                        >
+                            Prettier
+                        </Tab>
+                        <Tab
+                            handleClick={createHandleTabChange('currentTab')}
+                            id={TabStates.TEMPLATES}
+                            isCurrent={templateTabCurrent}
+                        >
+                            Templates
+                        </Tab>
+                    </Tabs>
+                    <TabContent show={pseudoTabCurrent}>
+                        <FormField label="Pseudo Code (Required)">
+                            <CodeEditor
+                                mode="javascript"
+                                handleChange={createHandleTextChange('pseudo')}
+                                id="pseudoCode"
+                                value={pseudo}
+                            />
+                        </FormField>
+                    </TabContent>
+                    <TabContent show={prettierTabCurrent}>
+                        <FormField label="Prettier Config">
+                            <CodeEditor
+                                mode="json"
+                                handleChange={createHandleTextChange(
+                                    'prettierConfig'
+                                )}
+                                id="prettierConfigCode"
+                                mode="json"
+                                value={prettierConfig}
+                            />
+                        </FormField>
+                    </TabContent>
+                    <TabContent show={templateTabCurrent}>
+                        <FormField label="Choose Template">
+                            <div className="space-between">
+                                <Select
+                                    handleChange={createHandleChange(
+                                        'currentTemplateName'
+                                    )}
+                                    style={{ marginBottom: '1rem' }}
+                                    value={currentTemplateName}
+                                >
+                                    {TemplateOptions.map(option => (
+                                        <SelectOption value={option.value}>
+                                            {option.label}
+                                        </SelectOption>
+                                    ))}
+                                </Select>
+                                <Button
+                                    handleClick={handleTemplateReset}
+                                    text="Reset Template"
+                                />
+                            </div>
+                        </FormField>
+                        <CodeEditor
+                            handleChange={createHandleTextChange(
+                                currentTemplateName
+                            )}
+                            id="templateEditor"
+                            mode="handlebars"
+                            value={state[currentTemplateName]}
+                        />
+                    </TabContent>
+                </div>
                 <div className="column is-4">
                     <form onSubmit={handleSubmit}>
-                        <FormField label="Base Component Name">
+                        <FormField label="Base Component Name (Required)">
                             <TextInput
                                 handleChange={createHandleChange(
                                     'baseComponentName'
@@ -172,18 +257,18 @@ const App = () => {
                                 value={baseComponentName}
                             />
                         </FormField>
-                        <Checkbox
-                            label="Subfolder?"
-                            handleChange={createHandleToggle('hasSubfolder')}
-                            checked={hasSubfolder}
-                        />
-                        <Checkbox
-                            label="Unit tests?"
-                            handleChange={createHandleToggle('hasUnitTests')}
-                            checked={hasUnitTests}
-                        />
+                        <FormField>
+                            <Checkbox
+                                id="hasSubfolderCheckbox"
+                                checked={hasSubfolder}
+                                handleChange={createHandleToggle(
+                                    'hasSubfolder'
+                                )}
+                                label="Include subfolder"
+                            />
+                        </FormField>
                         {hasSubfolder && (
-                            <FormField label="Subfolder Name">
+                            <FormField label="Subfolder Name (Required)">
                                 <TextInput
                                     handleChange={createHandleChange(
                                         'subfolderName'
@@ -192,166 +277,70 @@ const App = () => {
                                 />
                             </FormField>
                         )}
-                        <FormField label="File Type">
-                            <div className="buttons has-addons">
-                                <Button
-                                    className={`button is-primary ${
-                                        fileExtension === 'tsx'
-                                            ? 'is-selected'
-                                            : 'is-outlined'
-                                    }`}
-                                    handleClick={createHandleChange(
-                                        'fileExtension'
-                                    )}
-                                    value="tsx"
-                                    text=".tsx"
-                                />
-                                <Button
-                                    className={`button is-primary ${
-                                        fileExtension === 'js'
-                                            ? 'is-selected'
-                                            : 'is-outlined'
-                                    }`}
-                                    handleClick={createHandleChange(
-                                        'fileExtension'
-                                    )}
-                                    value="js"
-                                    text=".js"
-                                />
-                            </div>
+                        <FormField>
+                            <Checkbox
+                                id="unitTestCheckbox"
+                                checked={hasUnitTests}
+                                handleChange={createHandleToggle(
+                                    'hasUnitTests'
+                                )}
+                                label="Include unit tests"
+                            />
                         </FormField>
-                        <FormField label="Build Path">
+                        <FormField label="File Type">
+                            <Radio
+                                checked={tsxRadioSelected}
+                                className={swapRadioClassName(tsxRadioSelected)}
+                                handleChange={fileExtensionHandleChange}
+                                id="tsxExtension"
+                                label=".tsx"
+                                name="fileExtensionRadio"
+                                value="tsx"
+                            />
+                            <Radio
+                                checked={jsRadioSelected}
+                                className={swapRadioClassName(jsRadioSelected)}
+                                handleChange={fileExtensionHandleChange}
+                                id="jsExtension"
+                                label=".js"
+                                name="fileExtensionRadio"
+                                value="js"
+                            />
+                            <Radio
+                                checked={jsxRadioSelected}
+                                className={swapRadioClassName(jsxRadioSelected)}
+                                handleChange={fileExtensionHandleChange}
+                                id="jsxExtension"
+                                label=".jsx"
+                                name="fileExtensionRadio"
+                                value="jsx"
+                            />
+                        </FormField>
+                        <FormField label="Build Path (Required)">
                             {buildPath && (
                                 <FormField>
                                     <CodeBlock code={buildPath} />
                                 </FormField>
                             )}
-                            <PathButton
-                                clearFn={createHandleClear('buildPath')}
-                                setFn={createHandleDialogOpen(
+                            <Button
+                                handleClick={createHandleDialogOpen(
                                     createHandleTextChange('buildPath')
                                 )}
-                                text="Build Path"
-                                toggleCondition={buildPath}
+                                text={`${
+                                    buildPath ? 'Change' : 'Set'
+                                } Build Path`}
                             />
-                        </FormField>
-                        <FormField label="Custom Templates (Optional)">
-                            <div className="box">
-                                <FormField>
-                                    {baseComponentTemplatePath && (
-                                        <FormField>
-                                            <CodeBlock
-                                                code={baseComponentTemplatePath}
-                                            />
-                                        </FormField>
-                                    )}
-                                    <PathButton
-                                        clearFn={createHandleClear(
-                                            'baseComponentTemplatePath'
-                                        )}
-                                        setFn={createHandleDialogOpen(
-                                            createHandleTextChange(
-                                                'baseComponentTemplatePath'
-                                            ),
-                                            true
-                                        )}
-                                        text="Base Component Path"
-                                        toggleCondition={
-                                            baseComponentTemplatePath
-                                        }
-                                    />
-                                </FormField>
-                                <FormField>
-                                    {componentTemplatePath && (
-                                        <FormField>
-                                            <CodeBlock
-                                                code={componentTemplatePath}
-                                            />
-                                        </FormField>
-                                    )}
-                                    <PathButton
-                                        clearFn={createHandleClear(
-                                            'componentTemplatePath'
-                                        )}
-                                        setFn={createHandleDialogOpen(
-                                            createHandleTextChange(
-                                                'componentTemplatePath'
-                                            ),
-                                            true
-                                        )}
-                                        text="Component Path"
-                                        toggleCondition={componentTemplatePath}
-                                    />
-                                </FormField>
-                                <FormField>
-                                    {unitTestTemplatePath && (
-                                        <FormField>
-                                            <CodeBlock
-                                                code={unitTestTemplatePath}
-                                            />
-                                        </FormField>
-                                    )}
-                                    <PathButton
-                                        clearFn={createHandleClear(
-                                            'unitTestTemplatePath'
-                                        )}
-                                        setFn={createHandleDialogOpen(
-                                            createHandleTextChange(
-                                                'unitTestTemplatePath'
-                                            ),
-                                            true
-                                        )}
-                                        text="Unit Test Path"
-                                        toggleCondition={unitTestTemplatePath}
-                                    />
-                                </FormField>
-                            </div>
-                        </FormField>
-                        <FormField label="Reset">
-                            <div className="buttons">
-                                <Button
-                                    fullwidth
-                                    className="is-primary is-outlined"
-                                    handleClick={createHandleReset('pseudo', getInitialState().pseudo)}
-                                    text="Reset Pseudo Code"
-                                />
-                                <Button
-                                    fullwidth
-                                    className="is-primary is-outlined"
-                                    handleClick={createHandleReset('prettierConfig', getInitialState().prettierConfig)}
-                                    text="Reset Prettier Config"
-                                />
-                            </div>
                         </FormField>
                         <FormField label="Actions">
-                            <Button
-                                fullwidth
-                                className="is-primary"
-                                text="Build"
-                                type="submit"
-                                disabled={disableBuildButton}
-                            />
+                            <div className="buttons">
+                                <Button
+                                    text="Build"
+                                    type="submit"
+                                    disabled={disableBuildButton}
+                                />
+                            </div>
                         </FormField>
                     </form>
-                </div>
-                <div className="column is-8">
-                    <FormField label="Pseudo Code">
-                        <CodeEditor
-                            id="pseudoCode"
-                            handleChange={createHandleTextChange('pseudo')}
-                            value={pseudo}
-                            height="400px"
-                        />
-                    </FormField>
-                    <FormField label="Prettier Config">
-                        <CodeEditor
-                            id="prettierConfigCode"
-                            handleChange={createHandleTextChange('prettierConfig')}
-                            value={prettierConfig}
-                            height="250px"
-                            mode="json"
-                        />
-                    </FormField>
                 </div>
             </div>
             <div className="notification-bar">
