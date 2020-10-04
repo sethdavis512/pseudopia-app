@@ -20,10 +20,11 @@ const watchArr = [PATHS.css, PATHS.config, PATHS.htmlGlob];
 function compileCSS() {
     return src(PATHS.css)
         .pipe(postcss([tailwindcss(PATHS.config), require('autoprefixer')]))
-        .pipe(dest(PATHS.dist))
         .pipe(
             purge({
-                content: [PATHS.htmlGlob]
+                content: [PATHS.htmlGlob],
+                defaultExtractor: content =>
+                  content.match(/[\w-/:]+(?<!:)/g) || []
             })
         )
         .pipe(
