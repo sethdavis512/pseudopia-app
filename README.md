@@ -118,7 +118,7 @@ Here are a few things that I plan on working on:
 -   ~~Toggleable subfolder~~
 -   ~~Toggleable unit tests~~
 -   ~~Custom Prettier config~~
--   Downloadable app
+-   ~~Downloadable app~~
 -   Clear previous files before build
 
 ## Contributing
