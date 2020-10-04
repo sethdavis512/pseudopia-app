@@ -10,9 +10,9 @@ const { reload, init: browserInit } = require('browser-sync').create();
 const PATHS = {
     config: 'tailwind.config.js',
     css: 'src/styles.css',
-    dist: 'dist/',
-    html: 'dist/index.html',
-    htmlGlob: 'dist/*.html'
+    dist: '.',
+    html: './index.html',
+    htmlGlob: './*.html'
 };
 
 const watchArr = [PATHS.css, PATHS.config, PATHS.htmlGlob];
