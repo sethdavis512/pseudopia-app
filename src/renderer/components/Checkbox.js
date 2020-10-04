@@ -1,12 +1,18 @@
-import React from 'react';
+import React from 'react'
 
-const Checkbox = ({ handleChange, checked, label }) => {
+const Checkbox = ({ id, handleChange, checked, label }) => {
     return (
-        <label className="checkbox">
-            <input type="checkbox" onChange={handleChange} checked={checked}/>
-            {label}
-        </label>
-    );
-};
+        <>
+            <input
+                id={id}
+                className="switch pseudopia-switch"
+                type="checkbox"
+                onChange={handleChange}
+                checked={checked}
+            />
+            <label for={id}>{label}</label>
+        </>
+    )
+}
 
-export default Checkbox;
+export default Checkbox

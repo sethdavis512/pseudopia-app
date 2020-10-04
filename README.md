@@ -6,17 +6,15 @@
 
 ## Features
 
-⚡️ Fast - Quickly build out components for your app ideas 
+👍🏻 Built-in Templates: Get up and running fast, just write pseudo React - get components
 
-👍🏻 Easy - Templates are built-in, just write pseudo React - get components
+🦑 Flexible: Write top level components or fine-grain ones.
 
-🦑 Flexible - Write starter components or deeply nested ones 
+🧩 Customizable: Edit Handlebar templates within Pseudopia
 
-🧩 Customizable - Bring your own Handlebar templates for Pseudopia to use
+🎛 Prettier Config: Format your code, just the way you like
 
-🎛 Do you like Prettier? You can customize that too!
-
-📺 [Watch a quick video](https://res.cloudinary.com/setholito/video/upload/v1600830474/pseudopia/pseudopia-video-v2.mp4)
+📺 [Watch a quick video](https://res.cloudinary.com/setholito/video/upload/v1601693540/pseudopia/pseudopia-video-v3.mp4)
 
 ## Example
 
@@ -54,11 +52,13 @@ Generates:
 ## Getting Started
 
 To develop:
+
 ```
 yarn && yarn dev
 ```
 
 To build app:
+
 ```
 yarn dist
 ```
@@ -68,6 +68,7 @@ yarn dist
 Pseudopia can be customized to use your own `prettier` config.
 
 Default:
+
 ```
 {
     "arrowParens": "avoid"
@@ -83,12 +84,10 @@ For further info on Prettier configs, [see here](https://prettier.io/docs/en/con
 
 ## Handlebar Templates
 
-Pseudopia allows you to use your own Handlebar templates.
-Currently, templates require at least one piece/key of data to be handed off to Handlebars.
+Pseudopia allows you to customize the built-in Handlebar templates.
+Navigate to the `Templates` tab, choose your template from the select field and customize!
 
-See tables below.
-
-### Variables for Base Component Handlebar template ([Example](src/hbs-templates/base-component.hbs))
+### Variables for Base Component template
 
 | Key       | Type                                                | Description                                           |
 | --------- | --------------------------------------------------- | ----------------------------------------------------- |
@@ -97,7 +96,7 @@ See tables below.
 | name      | `string`                                            | Name of base component                                |
 | render    | `string`                                            | Content from the Pseudopia code editor                |
 
-### Variables for Component Handlebar template ([Example](src/hbs-templates/component.hbs))
+### Variables for Component template
 
 | Key       | Type       | Description                       |
 | --------- | ---------- | --------------------------------- |
@@ -105,7 +104,7 @@ See tables below.
 | name      | `string`   | Name of component                 |
 | props     | `string[]` | Component props                   |
 
-### Variables for Unit Test Handlebar template ([Example](src/hbs-templates/unit-test.hbs))
+### Variables for Unit Test template
 
 | Key  | Type     | Description       |
 | ---- | -------- | ----------------- |
@@ -116,11 +115,11 @@ See tables below.
 I really want to make this app stand out.  
 Here are a few things that I plan on working on:
 
-- ~~Toggleable subfolder~~
-- ~~Toggleable unit tests~~
-- ~~Custom Prettier config~~
-- Downloadable app
-- Clear previous files before build
+-   ~~Toggleable subfolder~~
+-   ~~Toggleable unit tests~~
+-   ~~Custom Prettier config~~
+-   Downloadable app
+-   Clear previous files before build
 
 ## Contributing
 
