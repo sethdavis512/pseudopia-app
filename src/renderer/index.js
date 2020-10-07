@@ -29,6 +29,7 @@ const App = () => {
     const {
         baseComponentName,
         buildPath,
+        openBuildPath,
         baseComponentTemplate,
         componentTemplate,
         currentTab,
@@ -125,6 +126,7 @@ const App = () => {
             baseComponentName,
             baseComponentTemplate,
             buildPath,
+            openBuildPath,
             componentTemplate,
             fileExtension,
             hasSubfolder,
@@ -331,6 +333,18 @@ const App = () => {
                                 } Build Path`}
                             />
                         </FormField>
+                        {buildPath && (
+                            <FormField>
+                                <Checkbox
+                                    id="openBuildPathCheckbox"
+                                    checked={openBuildPath}
+                                    handleChange={createHandleToggle(
+                                        'openBuildPath'
+                                    )}
+                                    label="Open folder after building"
+                                />
+                            </FormField>
+                        )}
                         <FormField label="Actions">
                             <div className="buttons">
                                 <Button

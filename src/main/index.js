@@ -1,6 +1,6 @@
 'use strict'
 
-const { app, BrowserWindow, dialog, ipcMain } = require('electron')
+const { app, BrowserWindow, dialog, ipcMain, shell } = require('electron')
 const path = require('path')
 import { format as formatUrl } from 'url'
 const {
@@ -207,6 +207,11 @@ ipcMain.on('write-files', (event, config) => {
     })
 
     if (!hasError) {
+        if (config.openBuildPath) {
+            const handleOpenPathError = message => message && handleError({ message })
+            shell.openPath(FileConstants.BUILD_PATH).then(handleOpenPathError)
+        }
+
         mainWindow.webContents.send('compile-success')
     }
 })

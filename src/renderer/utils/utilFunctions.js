@@ -11,6 +11,7 @@ export const getInitialState = () => ({
     baseComponentName: 'App',
     baseComponentTemplate,
     buildPath: '',
+    openBuildPath: true,
     componentTemplate,
     currentTab: TabStates.PSEUDO,
     currentTemplateName: TemplateNames.BASE_COMPONENT,
