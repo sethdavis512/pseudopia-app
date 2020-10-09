@@ -160,7 +160,7 @@ const App = () => {
         isSelected ? 'is-selected' : 'is-outlined'
 
     const disableBuildButton =
-        !buildPath || !baseComponentName || !pseudo || !subfolderName
+        !buildPath || !baseComponentName || !pseudo || (hasSubfolder && !subfolderName)
 
     return (
         <div className="wrapper">
