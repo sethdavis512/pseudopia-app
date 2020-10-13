@@ -18,6 +18,8 @@ import TabContent from './components/TabContent'
 import Select from './components/Select'
 import SelectOption from './components/SelectOption'
 import Radio from './components/Radio'
+import ConfirmModal from './components/ConfirmModal'
+import useConfirm from './hooks/useConfirm'
 
 import { TabStates, TemplateOptions } from './constants'
 import { getInitialState } from './utils/utilFunctions'
@@ -120,8 +122,11 @@ const App = () => {
         }
     }, [successMessage, errorMessage])
 
-    const handleBuild = () => {
-        ipcRenderer.send('write-files', {
+    const [confirm, confirmProps] = useConfirm()
+
+    const handleBuild = async () => {
+        // ask for warm
+        const config = {
             baseComponentName,
             baseComponentTemplate,
             buildPath,
@@ -133,7 +138,33 @@ const App = () => {
             pseudo,
             subfolderName,
             unitTestTemplate
-        })
+        }
+        const preBuild = await ipcRenderer.invoke('pre-build', config)
+        if (preBuild.next) {
+            ipcRenderer.send('write-files', config)
+        } else {
+            // handle overwrite error
+            const WarningContent = (
+                <>
+                    <p>The follow component files already exists:</p>
+                    <ul className="mt-3 p-3 has-background-grey-lighter has-text-weight-bold">
+                        {preBuild.detail.map((c, i) => (
+                            <li className="is-family-code" key={i}>
+                                {c.component}
+                            </li>
+                        ))}
+                    </ul>
+                </>
+            )
+
+            const overwrite = await confirm('Warning', WarningContent, [
+                'Overwrite',
+                'Cancel'
+            ])
+            if (overwrite) {
+                ipcRenderer.send('write-files', config)
+            }
+        }
     }
 
     const handleSubmit = event => {
@@ -164,6 +195,7 @@ const App = () => {
 
     return (
         <div className="wrapper">
+            <ConfirmModal {...confirmProps} />
             <div className="logo-container">
                 <Logo />
             </div>
