@@ -91,6 +91,15 @@ exports.formatCode = (code, userConfigString, errorCallback) => {
     }
 }
 
+exports.fileExists = (filePath) => {
+    try {
+        fs.statSync(filePath)
+    } catch (e) {
+        if (e.code === 'ENOENT') return false
+    }
+    return true
+}
+
 exports.writeFile = ({ directory, fileName, fileExtension, content }) => {
     if (!fileName || !content) return
 

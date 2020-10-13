@@ -9,7 +9,8 @@ const {
     getASTData,
     getConstants,
     handleAST,
-    writeFile
+    writeFile,
+    fileExists
 } = require('./utils/utilFunctions')
 const Handlebars = require('handlebars')
 
@@ -99,6 +100,42 @@ ipcMain.handle('open-file', async (event, isFile) => {
     })
 
     return response.filePaths[0]
+})
+// Pre-build phase
+// TODO: standarize return object for multiple checks
+ipcMain.handle('pre-build', (event, config) => {
+    const handleError = error => {
+        mainWindow.webContents.send('compile-error', error)
+    }
+    const AST = getASTData(config.pseudo, handleError)
+    const components = handleAST(AST.body)
+    const FileConstants = getConstants(config)
+
+    // Check if any component file exist (rewrite config)
+    const existsComponents = components.map(component => {
+        const componentPath =
+            path.join(
+                FileConstants.COMPONENT_PATH(config.hasSubfolder),
+                component.name
+            ) +
+            '.' +
+            FileConstants.EXTENSION
+        return {
+            component: component.name + '.' + FileConstants.EXTENSION,
+            exists: fileExists(componentPath)
+        }
+    })
+    const someFileExist = existsComponents.some(component => component.exists)
+
+    if (someFileExist) {
+        return {
+            next: false,
+            reason: 'overwrite',
+            detail: existsComponents.filter(c => c.exists)
+        }
+    }
+
+    return { next: true }
 })
 
 ipcMain.on('write-files', (event, config) => {
