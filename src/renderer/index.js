@@ -146,6 +146,10 @@ const App = () => {
         getInitialState()[currentTemplateName]
     )
 
+    const handleOpenPath = async () => {
+      await ipcRenderer.invoke('open-path', buildPath)
+    }
+
     const fileExtensionHandleChange = createHandleChange('fileExtension')
 
     const pseudoTabCurrent = currentTab === TabStates.PSEUDO
@@ -318,8 +322,12 @@ const App = () => {
                         </FormField>
                         <FormField label="Build Path (Required)">
                             {buildPath && (
-                                <FormField>
+                                <FormField hasAddons>
                                     <CodeBlock code={buildPath} />
+                                    <Button
+                                        handleClick={handleOpenPath}
+                                        text='Open'
+                                    />
                                 </FormField>
                             )}
                             <Button

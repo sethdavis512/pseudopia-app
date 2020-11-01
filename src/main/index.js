@@ -1,6 +1,6 @@
 'use strict'
 
-const { app, BrowserWindow, dialog, ipcMain } = require('electron')
+const { app, BrowserWindow, dialog, ipcMain, shell } = require('electron')
 const path = require('path')
 import { format as formatUrl } from 'url'
 const {
@@ -99,6 +99,10 @@ ipcMain.handle('open-file', async (event, isFile) => {
     })
 
     return response.filePaths[0]
+})
+
+ipcMain.handle('open-path', async (event, path) => {
+  return shell.openPath(path)
 })
 
 ipcMain.on('write-files', (event, config) => {

@@ -75,6 +75,15 @@ pre {
     border: $pseudopia-border;
     border-radius: 8px;
 }
+.has-addons {
+  pre {
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+  }
+  .button {
+    padding: 28px 16px;
+  }
+}
 
 label.radio {
     padding: 1rem;
