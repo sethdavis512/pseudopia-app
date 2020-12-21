@@ -1,35 +1,74 @@
 const { ipcRenderer } = require('electron')
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 import { render } from 'react-dom'
 
 import Button from './components/Button'
+import Checkbox from './components/Checkbox'
 import CodeBlock from './components/CodeBlock'
 import CodeEditor from './components/CodeEditor'
 import FormField from './components/FormField'
 import Logo from './components/Logo'
 import Notification from './components/Notification'
-import TextInput from './components/TextInput'
-import useLocalStorage from './hooks/useLocalStorage'
-import Checkbox from './components/Checkbox'
-import Tabs from './components/Tabs'
-import Tab from './components/Tab'
-import TabContent from './components/TabContent'
+import Radio from './components/Radio'
 import Select from './components/Select'
 import SelectOption from './components/SelectOption'
-import Radio from './components/Radio'
+import Tab from './components/Tab'
+import TabContent from './components/TabContent'
+import Tabs from './components/Tabs'
+import TextInput from './components/TextInput'
+import useLocalStorage from './hooks/useLocalStorage'
 
-import { TabStates, TemplateOptions } from './constants'
 import { getInitialState, getUniqueId } from './utils/utilFunctions'
+import { TabStates, TemplateOptions } from './constants'
 
 import './styles/App.scss'
 
+const ActionTypes = {
+    SET_TEXT: 'SET_TEXT',
+    SET_TOGGLE: 'SET_TOGGLE',
+    SET_DATA: 'SET_DATA'
+}
+
 const App = () => {
-    const [state, setState] = useLocalStorage('app', getInitialState())
+    const [localStorageState, setLocalStorageState] = useLocalStorage(
+        'app',
+        getInitialState()
+    )
+    const [state, dispatch] = useReducer((state, { payload, type }) => {
+        switch (type) {
+            case ActionTypes.SET_TEXT:
+                return {
+                    ...state,
+                    [payload.targetKey]: payload.text
+                }
+
+            case ActionTypes.SET_TOGGLE:
+                return {
+                    ...state,
+                    [payload.targetKey]: !state[payload.targetKey]
+                }
+
+            case ActionTypes.SET_DATA:
+                return {
+                    ...state,
+                    [payload.targetKey]: payload.data
+                }
+
+            default:
+                return state
+        }
+    }, localStorageState)
+    const stringifiedState = JSON.stringify(state)
+
+    useEffect(() => {
+        setLocalStorageState(state)
+    }, [stringifiedState])
+
     const {
         baseComponentName,
-        buildPath,
         baseComponentTemplate,
+        buildPath,
         componentTemplate,
         currentTab,
         currentTemplateName,
@@ -43,37 +82,51 @@ const App = () => {
     } = state
 
     const createHandleTextChange = targetKey => text => {
-        setState({
-            ...state,
-            [targetKey]: text
+        dispatch({
+            type: ActionTypes.SET_TEXT,
+            payload: {
+                targetKey,
+                text
+            }
         })
     }
 
     const createHandleChange = targetKey => event => {
-        setState({
-            ...state,
-            [targetKey]: event.target.value
+        dispatch({
+            type: ActionTypes.SET_TEXT,
+            payload: {
+                targetKey,
+                text: event.target.value
+            }
         })
     }
 
     const createHandleTabChange = targetKey => event => {
-        setState({
-            ...state,
-            [targetKey]: event.currentTarget.id
+        dispatch({
+            type: ActionTypes.SET_TEXT,
+            payload: {
+                targetKey,
+                text: event.currentTarget.id
+            }
         })
     }
 
     const createHandleToggle = targetKey => () => {
-        setState({
-            ...state,
-            [targetKey]: !state[targetKey]
+        dispatch({
+            type: ActionTypes.SET_TOGGLE,
+            payload: {
+                targetKey
+            }
         })
     }
 
     const createHandleReset = (targetKey, resetData) => () => {
-        setState({
-            ...state,
-            [targetKey]: resetData
+        dispatch({
+            type: ActionTypes.SET_DATA,
+            payload: {
+                targetKey,
+                data: resetData
+            }
         })
     }
 
@@ -231,7 +284,7 @@ const App = () => {
                                     {TemplateOptions.map(option => (
                                         <SelectOption
                                             value={option.value}
-                                            key={getUniqueId('option')}
+                                            key={getUniqueId(option.value)}
                                         >
                                             {option.label}
                                         </SelectOption>
