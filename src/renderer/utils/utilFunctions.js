@@ -20,5 +20,8 @@ export const getInitialState = () => ({
     prettierConfig,
     pseudo: '<Layout>\n    <Header />\n    <Main />\n    <Footer />\n</Layout>',
     subfolderName: 'components',
-    unitTestTemplate,
+    unitTestTemplate
 })
+
+export const getUniqueId = prefix =>
+    `${prefix}-${Math.random().toString(36).substr(2, 9)}`

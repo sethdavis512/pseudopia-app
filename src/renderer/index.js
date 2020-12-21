@@ -20,7 +20,7 @@ import SelectOption from './components/SelectOption'
 import Radio from './components/Radio'
 
 import { TabStates, TemplateOptions } from './constants'
-import { getInitialState } from './utils/utilFunctions'
+import { getInitialState, getUniqueId } from './utils/utilFunctions'
 
 import './styles/App.scss'
 
@@ -160,7 +160,10 @@ const App = () => {
         isSelected ? 'is-selected' : 'is-outlined'
 
     const disableBuildButton =
-        !buildPath || !baseComponentName || !pseudo || (hasSubfolder && !subfolderName)
+        !buildPath ||
+        !baseComponentName ||
+        !pseudo ||
+        (hasSubfolder && !subfolderName)
 
     return (
         <div className="wrapper">
@@ -226,7 +229,10 @@ const App = () => {
                                     value={currentTemplateName}
                                 >
                                     {TemplateOptions.map(option => (
-                                        <SelectOption value={option.value}>
+                                        <SelectOption
+                                            value={option.value}
+                                            key={getUniqueId('option')}
+                                        >
                                             {option.label}
                                         </SelectOption>
                                     ))}

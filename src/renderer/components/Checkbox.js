@@ -10,7 +10,7 @@ const Checkbox = ({ id, handleChange, checked, label }) => {
                 onChange={handleChange}
                 checked={checked}
             />
-            <label for={id}>{label}</label>
+            <label htmlFor={id}>{label}</label>
         </>
     )
 }
