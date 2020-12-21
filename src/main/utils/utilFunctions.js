@@ -21,7 +21,6 @@ exports.getConstants = ({
         // Aux
         BASE_COMPONENT_NAME: baseComponentName,
         EXTENSION: fileExtension,
-        JSX_ELEMENT: 'JSXElement',
         SUBFOLDER_NAME: subfolderName
     }
 }
@@ -86,7 +85,7 @@ exports.formatCode = (code, userConfigString, errorCallback) => {
 
     try {
         return prettier.format(code, config)
-    } catch(e) {
+    } catch (e) {
         errorCallback(e)
     }
 }
