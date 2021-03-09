@@ -29,11 +29,10 @@ const {{name}}{{#if (isTypescript extension)}}: React.FC{{/if}} = () => {
 export default {{name}}
 `
 
-export const componentTemplate = `import React {{#if (isTypescript extension)}}, { ReactNode } {{/if}}from 'react'
+export const componentTemplate = `import React from 'react'
 
 {{#if (isTypescript extension)}}
 interface {{name}}Props {
-    children: ReactNode;
     {{#each props}}
     {{this}}: any;
     {{/each}}
